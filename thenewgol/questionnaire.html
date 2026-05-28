@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Questionnaire — TheNewGOL</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --s1:      #0D1B2E;
+      --s2:      #0F2035;
+      --s3:      #0B1928;
+      --gold:    #C8973A;
+      --gold-lt: #E8B84B;
+      --gold-dim:rgba(200,151,58,0.15);
+      --cream:   #F7F3EE;
+      --white:   #FFFFFF;
+      --foot:    #070E1A;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--s1);
+      color: var(--cream);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: var(--foot);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header-brand {
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+    .header-status {
+      font-size: 11px;
+      color: rgba(247,243,238,0.35);
+      font-style: italic;
+    }
+
+    /* ── Progress bar ── */
+    .progress-wrap {
+      height: 2px;
+      background: rgba(200,151,58,0.12);
+    }
+    .progress-bar {
+      height: 100%;
+      background: var(--gold);
+      transition: width 0.4s ease;
+      width: 0%;
+    }
+
+    /* ── Main ── */
+    .main {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 0 20px 80px;
+    }
+
+    /* ── Section visibility ── */
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* ── Shared elements ── */
+    .divider {
+      width: 40px;
+      height: 1px;
+      background: var(--gold);
+      margin: 24px auto;
+    }
+    .divider.left { margin-left: 0; }
+
+    .btn-gold {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--s1);
+      border: none;
+      padding: 16px 44px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      transition: background 0.15s;
+      text-decoration: none;
+      text-align: center;
+    }
+    .btn-gold:hover { background: var(--gold-lt); }
+    .btn-gold:disabled,
+    .btn-gold[data-disabled="true"] {
+      background: rgba(200,151,58,0.25);
+      color: rgba(247,243,238,0.35);
+      cursor: default;
+    }
+
+    /* ── INTRO ── */
+    #section-intro {
+      padding-top: 60px;
+      text-align: center;
+    }
+    .intro-eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 20px;
+    }
+    .intro-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(28px, 6vw, 40px);
+      font-weight: 600;
+      color: var(--white);
+      line-height: 1.2;
+      margin-bottom: 0;
+    }
+    .intro-body {
+      font-size: 14px;
+      line-height: 1.9;
+      color: rgba(247,243,238,0.72);
+      max-width: 480px;
+      margin: 0 auto;
+      text-align: left;
+    }
+    .intro-body + .intro-body { margin-top: 14px; }
+    .intro-meta {
+      font-size: 11px;
+      color: rgba(247,243,238,0.38);
+      font-style: italic;
+      margin: 22px 0 36px;
+    }
+
+    /* ── QUESTIONS ── */
+    #section-questions { padding-top: 28px; }
+
+    .q-counter {
+      font-size: 11px;
+      color: rgba(247,243,238,0.38);
+      font-style: italic;
+      text-align: right;
+      margin-bottom: 20px;
+    }
+    .q-card {
+      background: var(--s2);
+      border-top: 2px solid var(--gold);
+      padding: 28px 24px 24px;
+    }
+    .q-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(17px, 3.5vw, 21px);
+      font-weight: 400;
+      color: var(--white);
+      line-height: 1.55;
+      margin-bottom: 28px;
+    }
+
+    /* Scale */
+    .scale {
+      display: flex;
+      gap: 6px;
+    }
+    .scale-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+      padding: 14px 4px;
+      background: transparent;
+      border: 1px solid rgba(200,151,58,0.22);
+      color: rgba(247,243,238,0.5);
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: 'Montserrat', sans-serif;
+    }
+    .scale-btn:hover {
+      border-color: rgba(200,151,58,0.65);
+      color: var(--cream);
+    }
+    .scale-btn.selected {
+      background: var(--gold-dim);
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+    .scale-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 600;
+      line-height: 1;
+    }
+    .scale-label {
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      line-height: 1;
+    }
+
+    .btn-next {
+      display: block;
+      width: 100%;
+      margin-top: 18px;
+      padding: 15px;
+      background: var(--gold);
+      color: var(--s1);
+      border: none;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-next:hover:not(:disabled) { background: var(--gold-lt); }
+    .btn-next:disabled {
+      background: rgba(200,151,58,0.18);
+      color: rgba(247,243,238,0.28);
+      cursor: default;
+    }
+
+    /* ── OPTIN ── */
+    #section-optin { padding-top: 44px; }
+
+    .optin-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(22px, 5vw, 30px);
+      font-weight: 600;
+      color: var(--white);
+      line-height: 1.3;
+    }
+    .optin-body {
+      font-size: 13px;
+      line-height: 1.85;
+      color: rgba(247,243,238,0.68);
+      margin-bottom: 32px;
+    }
+
+    .form-group { margin-bottom: 16px; }
+    .form-label {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+    .form-field {
+      width: 100%;
+      padding: 13px 16px;
+      background: var(--s3);
+      border: 1px solid rgba(200,151,58,0.28);
+      color: var(--cream);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.15s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .form-field:focus { border-color: var(--gold); }
+    .form-field::placeholder { color: rgba(247,243,238,0.3); }
+
+    select.form-field {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23C8973A' stroke-width='1.5' stroke-linecap='square' fill='none'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 38px;
+      cursor: pointer;
+    }
+    select.form-field option { background: var(--s2); }
+
+    .form-error {
+      font-size: 12px;
+      color: #FF7070;
+      margin-top: 8px;
+      min-height: 18px;
+    }
+    .optin-note {
+      font-size: 11px;
+      color: rgba(247,243,238,0.3);
+      font-style: italic;
+      margin-top: 12px;
+      text-align: center;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      background: var(--foot);
+      padding: 20px 24px;
+      text-align: center;
+      margin-top: 60px;
+    }
+    .footer-text {
+      font-size: 10px;
+      color: rgba(247,243,238,0.22);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 380px) {
+      .scale-label { font-size: 7px; }
+      .scale-num { font-size: 17px; }
+      .scale-btn { padding: 10px 2px; gap: 5px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <span class="header-brand">TheNewGOL.com</span>
+    <span class="header-status" id="js-header-status">10 questions · 3 min</span>
+  </header>
+  <div class="progress-wrap">
+    <div class="progress-bar" id="js-progress"></div>
+  </div>
+
+  <main class="main">
+
+    <!-- ── SECTION 1 — INTRO ── -->
+    <section id="section-intro" class="section active">
+      <p class="intro-eyebrow">Questionnaire</p>
+      <h1 class="intro-title">Le questionnaire</h1>
+      <div class="divider"></div>
+
+      <p class="intro-body">
+        Ce questionnaire ne teste pas tes compétences. Il ne mesure pas ta
+        performance. Il cartographie quelque chose de plus subtil — et de beaucoup
+        plus déterminant pour tes résultats.
+      </p>
+      <p class="intro-body">
+        Il n'y a pas de bonnes ou de mauvaises réponses. Juste ce qui est vrai
+        pour toi, maintenant.
+      </p>
+      <p class="intro-body">
+        À la fin, je te partagerai un article sur ce que j'ai découvert après
+        avoir vendu ma société — et qui a changé ma compréhension du leadership
+        et du succès.
+      </p>
+
+      <p class="intro-meta">10 questions · 3 minutes · Tes réponses sont enregistrées au fur et à mesure.</p>
+
+      <button class="btn-gold" id="js-btn-start">→ Je commence</button>
+    </section>
+
+    <!-- ── SECTION 2 — QUESTIONS ── -->
+    <section id="section-questions" class="section">
+      <p class="q-counter" id="js-q-counter">Question 1 sur 10</p>
+      <div class="q-card">
+        <p class="q-text" id="js-q-text"></p>
+        <div class="scale" id="js-scale">
+          <button class="scale-btn" data-value="1" type="button">
+            <span class="scale-num">1</span>
+            <span class="scale-label">Jamais</span>
+          </button>
+          <button class="scale-btn" data-value="2" type="button">
+            <span class="scale-num">2</span>
+            <span class="scale-label">Rarement</span>
+          </button>
+          <button class="scale-btn" data-value="3" type="button">
+            <span class="scale-num">3</span>
+            <span class="scale-label">Parfois</span>
+          </button>
+          <button class="scale-btn" data-value="4" type="button">
+            <span class="scale-num">4</span>
+            <span class="scale-label">Souvent</span>
+          </button>
+          <button class="scale-btn" data-value="5" type="button">
+            <span class="scale-num">5</span>
+            <span class="scale-label">Toujours</span>
+          </button>
+        </div>
+      </div>
+      <button class="btn-next" id="js-btn-next" disabled type="button">Suivant →</button>
+    </section>
+
+    <!-- ── SECTION 3 — CLÔTURE + OPTIN ── -->
+    <section id="section-optin" class="section">
+      <h2 class="optin-title">
+        Tu viens de te poser des questions que la plupart des entrepreneurs
+        n'ont jamais le temps de se poser.
+      </h2>
+      <div class="divider left"></div>
+
+      <p class="optin-body">
+        Merci. Tes réponses sont enregistrées.<br><br>
+        Comme promis, je t'envoie l'article sur ce que j'ai découvert après avoir
+        vendu ma société — et qui a changé ma compréhension du leadership et du
+        succès.<br><br>
+        Entre tes informations ci-dessous pour recevoir l'article et être notifié
+        du rapport. Ou consulte l'article directement après validation.<br><br>
+        Tu recevras également le rapport complet de cette étude dès que nous aurons
+        atteint 500 réponses — une analyse collective de ce qui bloque vraiment les
+        entrepreneurs et les empêche d'atteindre leur plus haut potentiel.
+      </p>
+
+      <form id="js-optin-form" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="input-prenom">Prénom</label>
+          <input type="text" id="input-prenom" class="form-field"
+            placeholder="Ton prénom" autocomplete="given-name" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="input-age">Âge</label>
+          <select id="input-age" class="form-field" required>
+            <option value="" disabled selected>Sélectionne ta tranche d'âge</option>
+            <option value="25-34">25–34 ans</option>
+            <option value="35-44">35–44 ans</option>
+            <option value="45-54">45–54 ans</option>
+            <option value="55-64">55–64 ans</option>
+            <option value="65+">65 ans et plus</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="input-email">Email</label>
+          <input type="email" id="input-email" class="form-field"
+            placeholder="ton@email.com" autocomplete="email" required>
+        </div>
+
+        <div class="form-error" id="js-form-error"></div>
+
+        <button type="submit" class="btn-gold" id="js-btn-submit"
+          style="width:100%;display:block;margin-top:8px">
+          → Je reçois l'article et le rapport
+        </button>
+        <p class="optin-note">Aucun spam. Tes données sont confidentielles.</p>
+      </form>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <p class="footer-text">TheNewGOL.com · Christophe Jouret · 2026</p>
+  </footer>
+
+  <!-- ── PostHog snippet (crée la file d'attente avant init) ── -->
+  <script>
+    !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]);t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}var c=t;if(a)for(var u=0;u<a.length;u++)c=c[a[u]];c._i||c._i.push([i,s,a]);if("undefined"!=typeof o){o=t.createElement("script"),o.type="text/javascript",o.crossOrigin="anonymous",o.async=!0;var d=s&&s.api_host||"https://eu.i.posthog.com";o.src=d.replace(".i.posthog.com","cdn.i.posthog.com")+"/static/array.js";p=t.getElementsByTagName("script")[0],p.parentNode.insertBefore(o,p)}for(var r=["capture","identify","alias","on","once","off","reset","onFeatureFlags","reloadFeatureFlags","addGroup","setPersonPropertiesForFlags","resetPersonPropertiesForFlags","setGroupPropertiesForFlags","resetGroupPropertiesForFlags"],f=0;f<r.length;f++)g(e,r[f]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+  </script>
+
+  <script>
+    // ── UTM params ──────────────────────────────────────────────────────────────
+    const urlParams   = new URLSearchParams(window.location.search)
+    const utm_source  = urlParams.get('utm_source')  || localStorage.getItem('utm_source')  || ''
+    const utm_content = urlParams.get('utm_content') || localStorage.getItem('utm_content') || ''
+    if (utm_source)  localStorage.setItem('utm_source',  utm_source)
+    if (utm_content) localStorage.setItem('utm_content', utm_content)
+
+    // ── Questions ───────────────────────────────────────────────────────────────
+    const QUESTIONS = [
+      { id: 'q1',  text: "Tes résultats sont en dessous de tes attentes et du potentiel réel." },
+      { id: 'q2',  text: "Tu prends des décisions que tu sais ne pas être les meilleures, mais tu les prends quand même." },
+      { id: 'q3',  text: "Quand quelque chose résiste dans ton business, tu cherches la cause à l'extérieur : stratégie, outil, consultant, collaborateurs, etc." },
+      { id: 'q4',  text: "Tu as l'impression d'être confronté aux mêmes challenges, sans trouver la bonne solution." },
+      { id: 'q5',  text: "Il t'arrive de réagir de manière automatique à certaines situations, sans prendre le recul nécessaire à une bonne décision." },
+      { id: 'q6',  text: "Tu sens un décalage entre ce que tu construis et ce que tu voulais vraiment créer au départ." },
+      { id: 'q7',  text: "Tu gères ton business depuis un sentiment d'urgence ou de pression plutôt que depuis la clarté." },
+      { id: 'q8',  text: "Les relations avec ton équipe, tes associés ou tes clients reproduisent des tensions que tu retrouves ailleurs dans ta vie." },
+      { id: 'q9',  text: "Tu as du mal à déléguer ou à faire confiance, même quand tu sais que ce serait plus efficace." },
+      { id: 'q10', text: "Tu pressens qu'il y a un potentiel plus élevé pour toi mais, tu n'arrives pas encore à identifier clairement ce qui t'en sépare." },
+    ]
+
+    // ── State ───────────────────────────────────────────────────────────────────
+    let currentIndex   = 0
+    let selectedValue  = null
+    const answers      = {}
+
+    // ── DOM refs ─────────────────────────────────────────────────────────────────
+    const $intro      = document.getElementById('section-intro')
+    const $questions  = document.getElementById('section-questions')
+    const $optin      = document.getElementById('section-optin')
+    const $progress   = document.getElementById('js-progress')
+    const $status     = document.getElementById('js-header-status')
+    const $counter    = document.getElementById('js-q-counter')
+    const $qText      = document.getElementById('js-q-text')
+    const $scaleBtns  = document.querySelectorAll('.scale-btn')
+    const $btnNext    = document.getElementById('js-btn-next')
+    const $btnStart   = document.getElementById('js-btn-start')
+    const $form       = document.getElementById('js-optin-form')
+    const $formError  = document.getElementById('js-form-error')
+    const $btnSubmit  = document.getElementById('js-btn-submit')
+
+    // ── PostHog init (via /api/config — clé publique) ───────────────────────────
+    fetch('/api/config')
+      .then(r => r.json())
+      .then(cfg => {
+        posthog.init(cfg.posthogKey, {
+          api_host:          cfg.posthogHost,
+          capture_pageview:  true,
+          capture_pageleave: true,
+          session_recording: {
+            maskAllInputs:       false,
+            maskInputAttributes: ['email'],
+          },
+          persistence: 'localStorage',
+          loaded: (ph) => {
+            ph.capture('page_viewed', {
+              page:        'questionnaire',
+              utm_source,
+              utm_content,
+            })
+          },
+        })
+        window._articleUrl = cfg.articleUrl
+      })
+      .catch(() => {
+        // PostHog indisponible — le funnel continue normalement
+      })
+
+    // ── Afficher une question ────────────────────────────────────────────────────
+    function showQuestion(index) {
+      const q = QUESTIONS[index]
+      $qText.textContent = q.text
+      $counter.textContent = `Question ${index + 1} sur ${QUESTIONS.length}`
+      $progress.style.width = `${Math.round((index / QUESTIONS.length) * 100)}%`
+      $status.textContent = `${index + 1} / ${QUESTIONS.length}`
+
+      selectedValue = null
+      $btnNext.disabled = true
+
+      // Restaurer la réponse si déjà saisie (navigation arrière future)
+      const saved = answers[q.id]
+      $scaleBtns.forEach(btn => {
+        const v = Number(btn.dataset.value)
+        btn.classList.toggle('selected', v === saved)
+      })
+
+      if (saved !== undefined) {
+        selectedValue = saved
+        $btnNext.disabled = false
+      }
+
+      $btnNext.textContent = index + 1 >= QUESTIONS.length ? 'Terminer →' : 'Suivant →'
+    }
+
+    // ── Show section ─────────────────────────────────────────────────────────────
+    function showSection(section) {
+      [$intro, $questions, $optin].forEach(s => s.classList.remove('active'))
+      section.classList.add('active')
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+
+    // ── Clic "Je commence" ───────────────────────────────────────────────────────
+    $btnStart.addEventListener('click', () => {
+      posthog.capture('funnel_started', { utm_source, utm_content })
+      showSection($questions)
+      showQuestion(0)
+    })
+
+    // ── Clic sur une option de l'échelle ─────────────────────────────────────────
+    $scaleBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const value       = Number(btn.dataset.value)
+        const labelEl     = btn.querySelector('.scale-label')
+        const selectedLabel = labelEl ? labelEl.textContent.trim() : ''
+        const q           = QUESTIONS[currentIndex]
+
+        selectedValue = value
+        answers[q.id] = value
+
+        // Persister immédiatement
+        localStorage.setItem(q.id, value)
+
+        // UI
+        $scaleBtns.forEach(b => b.classList.remove('selected'))
+        btn.classList.add('selected')
+        $btnNext.disabled = false
+
+        // Analytics
+        posthog.capture('question_answered', {
+          question:    q.id,
+          value,
+          label:       selectedLabel,
+          utm_content,
+        })
+      })
+    })
+
+    // ── Clic "Suivant" ───────────────────────────────────────────────────────────
+    $btnNext.addEventListener('click', () => {
+      currentIndex++
+      if (currentIndex >= QUESTIONS.length) {
+        $progress.style.width = '100%'
+        $status.textContent = ''
+        posthog.capture('optin_displayed', { utm_source, utm_content })
+        showSection($optin)
+      } else {
+        showQuestion(currentIndex)
+      }
+    })
+
+    // ── Abandon (beforeunload) ───────────────────────────────────────────────────
+    window.addEventListener('beforeunload', () => {
+      const answered = Object.keys(answers).length
+      if (answered > 0 && answered < QUESTIONS.length) {
+        posthog.capture('funnel_abandoned', {
+          last_question: `q${answered}`,
+          answers_count: answered,
+          utm_source,
+          utm_content,
+        })
+      }
+    })
+
+    // ── Soumission du formulaire ─────────────────────────────────────────────────
+    $form.addEventListener('submit', async (e) => {
+      e.preventDefault()
+      $formError.textContent = ''
+
+      const prenom = document.getElementById('input-prenom').value.trim()
+      const age    = document.getElementById('input-age').value
+      const email  = document.getElementById('input-email').value.trim()
+
+      if (!prenom || !age || !email) {
+        $formError.textContent = 'Tous les champs sont requis.'
+        return
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        $formError.textContent = 'Format d\'email invalide.'
+        return
+      }
+
+      // Score moyen côté client
+      const qVals = QUESTIONS.map(q => Number(answers[q.id] || localStorage.getItem(q.id) || 0))
+      const valid = qVals.filter(v => v >= 1 && v <= 5)
+      const scoreMoyen = valid.length
+        ? +(valid.reduce((a, b) => a + b, 0) / valid.length).toFixed(2)
+        : 0
+
+      // PostHog event
+      posthog.capture('optin_submitted', {
+        age,
+        utm_source,
+        utm_content,
+        score_moyen: scoreMoyen,
+      })
+
+      // Sauvegarder le prénom pour merci.html
+      localStorage.setItem('prenom', prenom)
+
+      // Payload
+      const payload = { prenom, age, email, utm_source, utm_content }
+      QUESTIONS.forEach(q => {
+        payload[q.id] = Number(answers[q.id] || localStorage.getItem(q.id) || 0)
+      })
+
+      // POST async (fire and forget — redirect immédiat)
+      fetch('/api/submit', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(payload),
+      }).catch(err => {
+        posthog.capture('optin_error', { error: err.message })
+      })
+
+      // Redirect immédiat
+      window.location.href = '/merci'
+    })
+  </script>
+
+</body>
+</html>

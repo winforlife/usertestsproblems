@@ -1,0 +1,28 @@
+name: PostHog — Annotation de déploiement
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'thenewgol/**'
+
+jobs:
+  annotate:
+    name: Créer annotation PostHog
+    runs-on: ubuntu-latest
+    steps:
+      - name: Annotation déploiement
+        run: |
+          curl -fsSL -X POST \
+            "${POSTHOG_HOST}/api/projects/${POSTHOG_PROJECT_ID}/annotations/" \
+            -H "Authorization: Bearer ${POSTHOG_PERSONAL_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"content\": \"🚀 Deploy thenewgol — ${GITHUB_SHA:0:7}\",
+              \"date_marker\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",
+              \"scope\": \"project\"
+            }"
+        env:
+          POSTHOG_HOST:             ${{ vars.POSTHOG_HOST }}
+          POSTHOG_PROJECT_ID:       ${{ vars.POSTHOG_PROJECT_ID }}
+          POSTHOG_PERSONAL_API_KEY: ${{ secrets.POSTHOG_PERSONAL_API_KEY }}

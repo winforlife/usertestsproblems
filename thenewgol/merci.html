@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Merci — TheNewGOL</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --s1:      #0D1B2E;
+      --s2:      #0F2035;
+      --s3:      #0B1928;
+      --gold:    #C8973A;
+      --gold-lt: #E8B84B;
+      --gold-dim:rgba(200,151,58,0.15);
+      --cream:   #F7F3EE;
+      --white:   #FFFFFF;
+      --foot:    #070E1A;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--s1);
+      color: var(--cream);
+      min-height: 100vh;
+    }
+
+    .header {
+      background: var(--foot);
+      padding: 16px 24px;
+    }
+    .header-brand {
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .main {
+      max-width: 580px;
+      margin: 0 auto;
+      padding: 60px 20px 80px;
+    }
+
+    .eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 18px;
+    }
+
+    .merci-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(26px, 6vw, 38px);
+      font-weight: 600;
+      color: var(--white);
+      line-height: 1.25;
+      margin-bottom: 6px;
+    }
+    .merci-prenom {
+      color: var(--gold);
+    }
+
+    .divider {
+      width: 40px;
+      height: 1px;
+      background: var(--gold);
+      margin: 22px 0;
+    }
+
+    .merci-body {
+      font-size: 14px;
+      line-height: 1.85;
+      color: rgba(247,243,238,0.72);
+      margin-bottom: 32px;
+    }
+
+    .btn-gold {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--s1);
+      border: none;
+      padding: 16px 44px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      transition: background 0.15s;
+      text-decoration: none;
+    }
+    .btn-gold:hover { background: var(--gold-lt); }
+
+    .separator {
+      border: none;
+      border-top: 1px solid rgba(200,151,58,0.18);
+      margin: 48px 0;
+    }
+
+    .closing-text {
+      font-size: 13px;
+      line-height: 1.9;
+      color: rgba(247,243,238,0.6);
+      font-style: italic;
+    }
+    .closing-text + .closing-text { margin-top: 14px; }
+
+    .closing-sig {
+      margin-top: 28px;
+      font-size: 13px;
+      color: rgba(247,243,238,0.8);
+      line-height: 1.6;
+    }
+    .closing-sig strong {
+      display: block;
+      font-size: 14px;
+      color: var(--cream);
+    }
+
+    .footer {
+      background: var(--foot);
+      padding: 20px 24px;
+      text-align: center;
+      margin-top: 60px;
+    }
+    .footer-text {
+      font-size: 10px;
+      color: rgba(247,243,238,0.22);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <span class="header-brand">TheNewGOL.com</span>
+  </header>
+
+  <main class="main">
+
+    <p class="eyebrow">Merci</p>
+    <h1 class="merci-title">
+      Merci <span class="merci-prenom" id="js-prenom"></span>.
+    </h1>
+    <div class="divider"></div>
+
+    <p class="merci-body">
+      Tes réponses sont enregistrées et l'article arrive dans ta boîte mail
+      dans quelques instants.
+    </p>
+    <p class="merci-body" style="margin-top:-16px">
+      En attendant, tu peux le consulter directement ici.
+    </p>
+
+    <a href="/article" class="btn-gold" id="cta-article">→ Lire l'article maintenant</a>
+
+    <hr class="separator">
+
+    <p class="closing-text">
+      Tu viens de prendre trois minutes pour regarder honnêtement là où ça
+      résiste. Cet effort indique que tu es peut-être prêt à ouvrir un nouveau
+      chapitre de ta vie d'entrepreneur.
+    </p>
+    <p class="closing-text">
+      La plupart des entrepreneurs ne s'arrêtent jamais assez longtemps pour
+      poser ces questions. Toi, tu l'as fait.
+    </p>
+    <p class="closing-text">
+      Dès que nous atteignons 500 réponses, tu recevras le rapport complet.
+      Je te contacterai personnellement à ce moment-là.
+    </p>
+
+    <div class="closing-sig">
+      <strong>Christophe Jouret</strong>
+      The New Game of Life · TheNewGOL.com
+    </div>
+
+  </main>
+
+  <footer class="footer">
+    <p class="footer-text">TheNewGOL.com · Christophe Jouret · 2026</p>
+  </footer>
+
+  <!-- ── PostHog snippet ── -->
+  <script>
+    !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]);t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}var c=t;if(a)for(var u=0;u<a.length;u++)c=c[a[u]];c._i||c._i.push([i,s,a]);if("undefined"!=typeof o){o=t.createElement("script"),o.type="text/javascript",o.crossOrigin="anonymous",o.async=!0;var d=s&&s.api_host||"https://eu.i.posthog.com";o.src=d.replace(".i.posthog.com","cdn.i.posthog.com")+"/static/array.js";p=t.getElementsByTagName("script")[0],p.parentNode.insertBefore(o,p)}for(var r=["capture","identify","alias","on","once","off","reset","onFeatureFlags","reloadFeatureFlags","addGroup","setPersonPropertiesForFlags","resetPersonPropertiesForFlags","setGroupPropertiesForFlags","resetGroupPropertiesForFlags"],f=0;f<r.length;f++)g(e,r[f]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+  </script>
+
+  <script>
+    // Afficher le prénom depuis localStorage
+    const prenom = localStorage.getItem('prenom') || ''
+    if (prenom) document.getElementById('js-prenom').textContent = prenom
+
+    // PostHog init
+    fetch('/api/config')
+      .then(r => r.json())
+      .then(cfg => {
+        posthog.init(cfg.posthogKey, {
+          api_host:          cfg.posthogHost,
+          capture_pageview:  false,
+          capture_pageleave: true,
+          persistence:       'localStorage',
+          loaded: (ph) => {
+            ph.capture('page_viewed', { page: 'merci' })
+          },
+        })
+      })
+      .catch(() => {})
+
+    // Clic article
+    document.getElementById('cta-article').addEventListener('click', () => {
+      posthog.capture('article_clicked', { source: 'merci', position: 'main_cta' })
+    })
+  </script>
+
+</body>
+</html>

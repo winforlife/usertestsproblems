@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    { "source": "/questionnaire", "destination": "/questionnaire.html" },
+    { "source": "/merci",         "destination": "/merci.html"         },
+    { "source": "/article",       "destination": "/article.html"       },
+    { "source": "/api/submit",    "destination": "/api/submit.js"      }
+  ]
+}
