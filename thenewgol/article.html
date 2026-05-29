@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>L'article — TheNewGOL</title>
+  <title>The New Game of Life — Christophe Jouret</title>
   <meta name="robots" content="noindex,nofollow">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,6 +33,7 @@
     .header {
       background: var(--foot);
       padding: 16px 24px;
+      border-bottom: 1px solid rgba(200,151,58,0.14);
     }
     .header-brand {
       font-weight: 700;
@@ -43,7 +44,7 @@
     }
 
     .main {
-      max-width: 580px;
+      max-width: 680px;
       margin: 0 auto;
       padding: 80px 20px 100px;
       text-align: center;
@@ -60,31 +61,80 @@
 
     .article-title {
       font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(26px, 6vw, 36px);
+      font-size: clamp(34px, 8vw, 54px);
       font-weight: 600;
       color: var(--white);
-      line-height: 1.25;
+      line-height: 1.05;
+      letter-spacing: 0.01em;
+    }
+
+    .article-subtitle {
+      margin-top: 18px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(19px, 4vw, 25px);
+      font-style: italic;
+      color: rgba(247,243,238,0.78);
+      line-height: 1.35;
     }
 
     .divider {
       width: 40px;
       height: 1px;
       background: var(--gold);
-      margin: 28px auto;
+      margin: 32px auto 42px;
     }
 
-    .placeholder-text {
+    .article-body {
+      text-align: left;
       font-size: 14px;
-      line-height: 1.85;
-      color: rgba(247,243,238,0.55);
-      font-style: italic;
+      line-height: 1.9;
+      color: rgba(247,243,238,0.82);
     }
+
+    .article-body p { margin: 0 0 24px; }
+
+    .article-body h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(25px, 5vw, 34px);
+      font-weight: 600;
+      color: var(--white);
+      line-height: 1.2;
+      margin: 52px 0 18px;
+    }
+
+    .article-body blockquote {
+      margin: 34px 0;
+      padding: 18px 22px;
+      border-left: 3px solid var(--gold);
+      background: linear-gradient(90deg, rgba(200,151,58,0.12), rgba(200,151,58,0.02));
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: clamp(19px, 4vw, 25px);
+      line-height: 1.42;
+      color: rgba(247,243,238,0.9);
+    }
+
+    .signature {
+      margin-top: 54px;
+      padding-top: 28px;
+      border-top: 1px solid rgba(200,151,58,0.24);
+      color: rgba(247,243,238,0.72);
+    }
+
+    .signature strong {
+      display: block;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+
+    .signature a { color: var(--gold-lt); text-decoration: none; }
 
     .footer {
       background: var(--foot);
       padding: 20px 24px;
       text-align: center;
       margin-top: 60px;
+      border-top: 1px solid rgba(200,151,58,0.14);
     }
     .footer-text {
       font-size: 10px;
@@ -101,13 +151,143 @@
   </header>
 
   <main class="main">
-    <p class="eyebrow">Article</p>
-    <h1 class="article-title">
-      Ce que j'ai découvert<br>après avoir vendu ma société
-    </h1>
+    <p class="eyebrow">Article · May 2026</p>
+    <h1 class="article-title">The New Game of Life</h1>
+    <p class="article-subtitle">J'ai vendu mon entreprise pour découvrir ce que je construisais vraiment.</p>
     <div class="divider"></div>
-    <!-- TODO: contenu fourni dans le prochain brief Projet 1 -->
-    <p class="placeholder-text">L'article arrive bientôt.</p>
+
+    <article class="article-body">
+      <p>J'ai vendu mon entreprise un jeudi.</p>
+
+      <p>Pas parce que les chiffres étaient mauvais. Ils ne l'étaient pas. Pas parce que j'étais épuisé, même si je l'étais. Je l'ai vendue parce qu'un matin, assis dans ma voiture, à regarder ce que j'avais construit, l'entreprise, l'équipe, la vie autour, je n'ai rien reconnu qui soit vraiment mien. Je l'ai dit à voix haute, pour moi-même, dans la voiture : j'ai besoin de faire de la place pour accueillir quelque chose de nouveau dans ma vie. Un mois plus tard, Jacques nous a appelés. Un an après, nous finalisions la vente d'Anais Digital, qui l'intégra dans JEMS, un groupe plus important.</p>
+
+      <p>Nous avions une entreprise de services qui fonctionnait. Une position de marché solide, une équipe qui avait confiance dans la vision, qui appréciait l'autonomie qu'on lui donnait. Un chiffre d'affaires en croissance. Et ce sentiment nouveau, silencieux, complètement irrationnel : que l'entreprise me faisait tourner, plutôt que l'inverse.</p>
+
+      <p>Je n'en ai parlé à personne à l'époque. On ne parle pas beaucoup de ce genre de sujet. On ne le fait pas, quand on est entrepreneur. On parle stratégie. On parle pipeline, burn rate, tour de table, P&amp;L. On parle du deal qui a failli se conclure, du recrutement qui n'a pas marché, du projet qu'on vient de livrer, de l'appel avec les actionnaires où l'on a joué la certitude qu'on ne ressentait pas tout à fait. On devient très bon à ce jeu. La plupart d'entre nous le devient.</p>
+
+      <blockquote>La vraie conversation, celle qui compte vraiment, n'a presque jamais lieu.</blockquote>
+
+      <p>Regardons brièvement dans le miroir du rétroviseur. Pas un framework. Pas une méthode. Pas les dix habitudes des entrepreneurs qui réussissent. Juste un témoignage honnête de quelque chose que j'ai observé en moi, et reconnu chez d'autres entrepreneurs, ceux qui acceptent de poser le pitch un instant pour avoir une conversation vraie, profonde et sans filtre.</p>
+
+      <h2>Le fossé dont on ne parle pas</h2>
+
+      <p>Voilà ce que j'ai observé a posteriori : j'étais intelligent, déterminé, expérimenté, convaincu de ce que je construisais, et en même temps, il y avait un fossé entre ce que je savais possible et ce que ma réalité reflétait réellement.</p>
+
+      <p>Pas un petit fossé. Un fossé significatif. Entre l'entreprise que je voyais clairement dans ma tête et celle qui existait dans les chiffres. Entre ce que je planifiais et ce qui se dévoilait dans la matière. Entre le leader que j'avais l'intention d'être le matin et celui que je devenais quand les choses se compliquaient.</p>
+
+      <p>Aujourd'hui, je connais ce fossé intimement. Je me suis rendu compte que pendant des années, je l'ai expliqué par des facteurs externes. Mauvais timing. Mauvaises conditions de marché. La personne-clé qui est partie au mauvais moment. J'avais toujours une histoire crédible et la conviction que ce serait mieux la prochaine fois. Les entrepreneurs sont exceptionnellement bons pour construire des histoires crédibles et pour croire dans le futur, c'est presque une déformation professionnelle.</p>
+
+      <p>Mais voilà ce que j'ai finalement dû regarder en face, deux ans après avoir vendu l'entreprise, au cœur d'une pause sabbatique que j'avais planifiée : le fossé n'était pas là-dehors. Il était en moi. Pas comme un échec. Pas comme un défaut. Comme quelque chose que je n'avais pas encore regardé en face.</p>
+
+      <blockquote>Qu'est-ce que je construisais vraiment, et pour qui ?</blockquote>
+
+      <p>Cette question a mis longtemps à trouver une réponse honnête. Parce que la vraie réponse n'était pas celle que je donnais dans les pitch decks.</p>
+
+      <h2>Ce que je cherchais vraiment</h2>
+
+      <p>Je ne suis pas devenu entrepreneur parce que j'adorais les cap tables et les conseils d'administration trimestriels.</p>
+
+      <p>Je l'ai fait parce que quelque chose en moi avait besoin de sortir d'un système qui me semblait trop étroit, trop hiérarchique, trop prescrit, trop orienté vers la performance pour le compte d'un autre. J'avais une vision en laquelle je croyais. J'avais une énergie que rien dans le monde conventionnel n'avait vraiment réussi à canaliser. Et sous tout ça, à être honnête, je cherchais quelque chose qu'il est très difficile de dire à voix haute dans un contexte business.</p>
+
+      <p>Je cherchais la liberté et la paix. Pas seulement la liberté financière. La liberté d'être moi-même, pleinement, sans me calibrer pour la salle. Un sens qui n'a pas besoin d'être justifié. Un travail qui se sent vivant plutôt qu'exécuté. Le sentiment que ce que je construisais comptait vraiment, pas seulement pour le marché, mais pour moi, et pour quelque chose de plus grand que moi.</p>
+
+      <p>Je me suis lancé dans l'entrepreneuriat parce que je sentais, même si je ne savais pas le formuler à l'époque, que quelque part dans cette direction, il y avait la paix et une forme de succès qui va au-delà de l'accumulation. Quelque chose qui ressemble davantage à la cohérence entre la vie intérieure et la vie extérieure qui se parlent vraiment. Oui, je cherchais la liberté et la paix. Je me cherchais moi-même, le courage d'être moi-même.</p>
+
+      <blockquote>J'avais raison. Cette chose existe. Je ne la cherchais simplement pas au bon endroit.</blockquote>
+
+      <h2>Le personnage que j'ai construit en chemin</h2>
+
+      <p>Depuis l'enfance jusqu'à mon premier pitch et au-delà, j'ai construit un personnage, des stratégies, des conditionnements, des mécanismes de survie pour me protéger des peurs, du rejet, des expériences douloureuses. Un personnage que, dans le contexte professionnel, j'appelle aujourd'hui l'entrepreneur faussement authentique.</p>
+
+      <p>L'entrepreneur qui est toujours certain, ou toujours en train de rebondir, ou qui a toujours trois coups d'avance. Celui qui ne montre pas le doute devant l'équipe. Qui sait lire n'importe quelle salle et lui donner ce qu'elle attend. Qui a un récit convaincant pour chaque revers, et un encore plus convaincant pour les visions. Qui travaille plus dur quand ça se complique, et encore plus dur quand ça ne suffit pas.</p>
+
+      <p>Je ne décris pas quelqu'un de faible. Je décris quelqu'un de très capable. Le personnage a été construit avec une vraie intelligence, à partir d'expériences réelles. Il a aidé. Il a permis de construire des choses réelles et de créer une vraie valeur.</p>
+
+      <p>Mais il avait aussi un coût qui n'apparaissait dans aucun compte de résultat.</p>
+
+      <p>Plus j'ai affiné ce personnage, plus il est devenu difficile de voir autour de lui. Le visionnaire qui ne peut pas douter ne voit pas ce qui bloque vraiment la vision. L'entrepreneur qui ne peut pas paraître incertain ne peut pas demander l'aide qui ferait vraiment avancer les choses. L'entrepreneur qui a délégué sa valeur propre à la performance de son entreprise ne peut pas prendre de décisions claires quand l'entreprise se heurte à un mur, parce que l'entreprise qui se heurte à un mur, dans un certain sens, c'est lui qui se heurte à un mur.</p>
+
+      <blockquote>C'est de là que vient le fossé. Pas d'un manque de stratégie. Du personnage qui se tient devant moi.</blockquote>
+
+      <p>Ce que je n'ai pas vu pendant longtemps, et c'est la chose la plus difficile à admettre, c'est que dans certains cas, les situations qui compliquent le plus, le personnage que j'avais créé était davantage une partie du problème que de la solution. Non par manque d'intelligence ou d'engagement. Parce que le personnage résolvait continuellement le même et mauvais problème : me protéger en évitant les vraies questions, plutôt que servir ce que je construisais.</p>
+
+      <p>Ce qu'il protégeait, inconsciemment, c'est ce qu'il percevait comme des faiblesses, les vraies questions, celles qui m'impliquent directement. Plus je donnais crédit à ce personnage, plus je m'éloignais du miroir et des questions que je n'avais pas encore osé poser.</p>
+
+      <blockquote>Au plus on détient d'autorité, moins les gens autour de nous réfléchissent la réalité sans l'adoucir d'abord. C'est l'un des pièges silencieux du leadership entrepreneurial.</blockquote>
+
+      <p>Depuis un autre point d'observation, de nouvelles questions, de nouvelles solutions émergent. Non parce que les problèmes ont changé. Parce qu'on les voit enfin tels qu'ils sont.</p>
+
+      <p><em>Et derrière le personnage, quelque chose d'intact, d'inexploité, de réel. Pas à construire. À retrouver.</em></p>
+
+      <h2>Ce que la pause a révélé</h2>
+
+      <p>Pendant ces mois de recul, quelque chose s'est produit que je n'avais pas prévu. Le silence que j'avais créé et que j'imaginais ressembler à du repos, a commencé à poser des questions que j'avais été trop occupé pour entendre.</p>
+
+      <p>La première était d'une simplicité trompeuse : qu'est-ce que j'avais vraiment cherché, tout du long ? Pas dans l'entreprise. Pas dans sa cession à un groupe français. Dans tout l'arc de ça. Parce que quand j'ai remonté le fil honnêtement, au-delà des stratégies, des ambitions, des récits que j'avais construits pour donner du sens à mes choix, j'ai trouvé quelque chose de bien plus ancien. Une recherche de sens et de trouver ma place qui avait commencé longtemps avant que je connaisse le mot entrepreneuriat. Une question d'enfant sur qui j'étais vraiment, et si c'était suffisant.</p>
+
+      <p>L'entrepreneuriat, j'ai commencé à comprendre, avait été l'une de mes réponses à cette question. Un endroit où je croyais pouvoir être moi-même. Où mon énergie avait un canal. Où ma vision avait la permission d'exister. Ce que je n'avais pas vu, c'est que j'avais porté la question avec moi, non résolue, dans chaque salle, chaque pitch, chaque moment de construction. L'entreprise n'était pas la solution. Elle était le terrain d'expérimentation pour cette recherche.</p>
+
+      <p>Ce que l'introspection a commencé à me restituer n'était pas quelque chose de nouveau. C'était quelque chose de plus ancien que le personnage, plus ancien que les stratégies, plus ancien que les conditionnements accumulés en chemin. Une qualité de présence, d'intelligence, de sensibilité qui avait toujours été la mienne, que le personnage n'avait pas créée, mais recouverte. Derrière l'entrepreneur faussement authentique, quelque chose d'authentique attendait depuis le début. Pas à construire. À découvrir.</p>
+
+      <p>Le chemin du retour n'a pas été une démolition du personnage. C'est une reconnaissance progressive, parfois inconfortable : ces peurs ne sont pas moi. Ces stratégies ne sont plus nécessaires. Cette version de moi-même que j'ai jouée, elle avait une fonction, et cette fonction n'est plus. Ce qui reste, quand la représentation se dépose, ressemble à quelque chose de plus réel, de plus vulnérable, et paradoxalement de plus capable que tout ce que le personnage pouvait produire. Pas une meilleure version du personnage. Un autre type de personne, entièrement moi-même.</p>
+
+      <h2>Ce que j'ai découvert sur le succès</h2>
+
+      <p>Pendant cette longue pause, j'ai passé beaucoup de temps à désapprendre ce que je croyais savoir, à ouvrir un autre regard sur tout une série de sujets personnel, professionnels, sociaux, existentiels… Le succès est un sujet clé pour les entrepreneurs. Il s'est présenté naturellement, sous la forme inattendue d'un cabriolet sportif, et de ce qu'il révélait du système derrière le personnage.</p>
+
+      <p>À ma petite échelle, j'avais construit des entreprises. J'avais créé de la valeur, des emplois, réalisé une cession. J'avais aussi commis des erreurs, arrêté des projets à mi-chemin, fermé des entreprises, perdu de l'argent. J'avais gagné le respect de gens que je respectais, et déçu certains d'entre eux aussi. Vu sous cet angle, c'était le tableau complet de l'entrepreneuriat. Et pourtant, quand je regardais honnêtement, j'ai réalisé que je courais vers une définition du succès qui n'était pas la mienne. Une définition construite à partir de ce que je croyais qu'on attendait de moi : la croissance, l'influence, la position de marché, la prochaine étape après la dernière.</p>
+
+      <p>La réalité que j'ai trouvée en dessous, quand j'ai arrêté de me déplacer assez vite pour l'éviter, était quelque chose de bien plus simple et de bien plus exigeant à la fois.</p>
+
+      <p>Le vrai succès, j'ai découvert, n'est pas une destination. C'est un état de cohérence, quand ce qu'on construit à l'extérieur est l'expression authentique de ce qu'on est à l'intérieur. Quand le travail soutient la vie plutôt qu'il ne la consume. Quand l'argent qu'on génère est une ressource plutôt qu'une preuve. Quand le temps devient vraiment le sien, non pas parce que l'agenda est vide, mais parce qu'on sait exactement pourquoi et pour quoi on le donne.</p>
+
+      <p>C'est le moment où l'on n'a plus besoin de la performance de l'entreprise pour confirmer sa propre valeur. Où un deal qui tombe est juste un deal qui tombe, pas la preuve de qui on est. Où l'on peut entrer dans n'importe quelle salle sans préparer une version de soi-même au préalable.</p>
+
+      <p>J'ai aussi découvert que le succès à ce niveau est multidimensionnel d'une façon dont on parle rarement. Pas seulement les revenus, pas seulement la liberté, mais la paix, l'alignement, la vitalité. Des relations qui enrichissent vraiment. La capacité de créer depuis un endroit de désir plutôt que de peur. Un silence intérieur qui tient même quand l'extérieur est turbulent. L'autorité de dire non à ce qui n'est pas aligné, et le penser vraiment.</p>
+
+      <p>Le succès, tel que j'apprends à le vivre, n'est pas l'accumulation. C'est l'expression. Quand on a distillé sa fréquence singulière, la qualité particulière d'intelligence, de sensibilité et de vision qui est spécifiquement la nôtre, dans ce qu'on offre au monde, et que le monde commence à répondre directement à cette fréquence. Pas au pitch. Pas au positionnement. À soi.</p>
+
+      <p>C'est un succès que je n'avais jamais imaginé possible. Et il était là depuis le début, derrière tout ce que j'avais construit par-dessus.</p>
+
+      <blockquote>Je ne regardais pas dans la mauvaise direction. Je regardais au mauvais niveau.</blockquote>
+
+      <h2>Le chemin est déjà là</h2>
+
+      <p>Aujourd'hui, je continue de marcher ce chemin, et ce à quoi j'en suis venu à croire, je le tiens avec précaution, parce que je sais comment ça peut sonner : le parcours entrepreneurial est l'un des véhicules les plus puissants qui existent pour ce type de découverte.</p>
+
+      <p>Non pas parce qu'il est confortable. Parce qu'il est d'une honnêteté implacable. L'entreprise est un miroir. Chaque résistance qu'on rencontre, chaque dynamique d'équipe qui se répète, chaque deal qui arrive à la dernière ligne et ne se conclut pas, c'est de l'information. Pas sur le marché. Sur soi.</p>
+
+      <p>Le défi n'est pas de trouver une meilleure stratégie. C'est d'accepter de regarder ce que la stratégie protège.</p>
+
+      <p>Cette transformation ne nécessite pas de partir de l'entreprise. Ça ne nécessite pas une pause sabbatique, comme il me l'a fallu. Ça peut arriver de l'intérieur de l'entreprise, au cœur du quotidien de construire quelque chose. Le chaos ordinaire de l'entrepreneuriat, la levée de fonds, la crise produit, le recrutement crucial, le conflit entre fondateurs, c'est de la matière première pour la transformation. Ça pointe quelque part, si on est prêt à suivre.</p>
+
+      <p>Je suis encore au tout début de comprendre ce que ça signifie en pratique. Il reste tellement à découvrir, à partager, à expérimenter, ce à quoi ça ressemble d'ouvrir cette porte de l'intérieur d'une entreprise, de trouver le chemin du retour vers soi non pas après l'entreprise, mais à travers elle. C'est cette exploration qui est devant moi maintenant.</p>
+
+      <h2>Quelque chose de plus grand</h2>
+
+      <p>Je veux dire une dernière chose, et c'est peut-être la plus importante.</p>
+
+      <p>Les entrepreneurs ne sont pas un segment de marché. L'entrepreneur est un type particulier d'être humain, celui qui regarde ce qui existe et ne peut pas s'empêcher d'imaginer ce qui pourrait exister à la place. Qui porte des visions qui semblent trop grandes et trop réelles pour être ignorées. Qui accepte un niveau d'incertitude que la plupart des gens évitent activement parce que l'alternative, ne pas essayer, semble pire.</p>
+
+      <p>Cette qualité, quand elle est alignée avec qui la personne est vraiment, est l'une des forces les plus génératrices qui existent. Les entreprises construites depuis cet alignement ne performent pas juste mieux, elles créent différemment. Elles attirent différemment. Elles contribuent au monde d'une façon qui compose au-delà de ce que n'importe quel tableur peut modéliser.</p>
+
+      <p>Et je crois que nous sommes à un moment, dans le monde des affaires, et plus largement, où cet alignement compte plus qu'il n'a jamais compté. L'ancien jeu, construit sur la performance, la séparation et l'accumulation de preuves, arrive au bout de sa route. Quelque chose d'autre devient possible. Un nouveau jeu, dans lequel le travail intérieur et le travail extérieur sont en conversation, pas en opposition. Dans lequel l'avantage compétitif le plus durable qu'un entrepreneur puisse développer est une relation claire et dégagée avec lui-même, avec qui il est vraiment.</p>
+
+      <p>Ce n'est pas une idée douce ou utopique. C'est la chose la plus difficile et la plus pratique que je connaisse.</p>
+
+      <p>Les entrepreneurs qui joueront à ce nouveau jeu avec le plus de succès sont ceux qui retrouveront leur singularité au-delà du personnage, et depuis cet endroit, peuvent se regarder honnêtement dans le miroir. Ce sont ceux qui créeront les conditions pour que leurs équipes fassent remonter les vrais enjeux, qui construiront ou inviteront des miroirs extérieurs, sans concession.</p>
+
+      <p>Ce sont ceux qui trouveront des réponses à des questions qu'ils ne se posaient même pas encore. Et c'est ce qui les mettra sur le chemin d'un succès qui est vraiment le leur.</p>
+
+      <p>Et ça commence, comme la plupart des choses vraies, par une conversation qui n'a presque jamais lieu.</p>
+
+      <div class="signature">
+        <strong>Christophe Jouret</strong>
+        <p>+32 474 / 75 65 13 · <a href="mailto:christophe@the-new-gol.com"
+          onclick="captureEvent('article_clicked', { source: 'article', position: 'signature' })">christophe@the-new-gol.com</a></p>
+        <p><em>The New Game of Life · For Entrepreneurs · May 2026</em></p>
+      </div>
+    </article>
   </main>
 
   <footer class="footer">
@@ -120,16 +300,30 @@
   </script>
 
   <script>
+    const isPosthogAvailable = typeof window !== 'undefined'
+      && typeof window.posthog !== 'undefined'
+      && typeof window.posthog.capture === 'function'
+
+    if (!isPosthogAvailable) {
+      console.warn('[analytics] PostHog bypassed: window.posthog indisponible')
+    }
+
+    function captureEvent(eventName, properties = {}) {
+      if (!isPosthogAvailable) return
+      window.posthog.capture(eventName, properties)
+    }
+
     fetch('/api/config')
       .then(r => r.json())
       .then(cfg => {
+        if (!isPosthogAvailable || !cfg.posthogKey) return
         posthog.init(cfg.posthogKey, {
           api_host:          cfg.posthogHost,
           capture_pageview:  false,
           capture_pageleave: true,
           persistence:       'localStorage',
-          loaded: (ph) => {
-            ph.capture('page_viewed', { page: 'article' })
+          loaded: () => {
+            captureEvent('page_viewed', { page: 'article' })
           },
         })
       })

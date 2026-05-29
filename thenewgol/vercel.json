@@ -1,4 +1,7 @@
 {
+  "redirects": [
+    { "source": "/", "destination": "/questionnaire", "permanent": false }
+  ],
   "rewrites": [
     { "source": "/questionnaire", "destination": "/questionnaire.html" },
     { "source": "/merci",         "destination": "/merci.html"         },

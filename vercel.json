@@ -1,8 +1,11 @@
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "framework": "vite",
+  "redirects": [
+    { "source": "/", "destination": "/questionnaire", "permanent": false }
+  ],
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" }
+    { "source": "/questionnaire", "destination": "/questionnaire.html" },
+    { "source": "/merci",         "destination": "/merci.html"         },
+    { "source": "/article",       "destination": "/article.html"       },
+    { "source": "/api/submit",    "destination": "/api/submit.js"      }
   ]
 }
