@@ -1,21 +1,35 @@
 import CONFIG from '../../config.js'
 
-export async function createRecord(fields) {
-  const url = `https://api.airtable.com/v0/${CONFIG.airtable.baseId}/${encodeURIComponent(CONFIG.airtable.tableName)}`
+const baseUrl = () =>
+  `https://api.airtable.com/v0/${CONFIG.airtable.baseId}/${encodeURIComponent(CONFIG.airtable.tableName)}`
 
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${CONFIG.airtable.apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ fields }),
-  })
+const headers = () => ({
+  Authorization: `Bearer ${CONFIG.airtable.apiKey}`,
+  'Content-Type': 'application/json',
+})
 
+async function checkResponse(res) {
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
     throw new Error(`Airtable ${res.status}: ${JSON.stringify(err)}`)
   }
-
   return res.json()
+}
+
+export async function createRecord(fields) {
+  const res = await fetch(baseUrl(), {
+    method: 'POST',
+    headers: headers(),
+    body: JSON.stringify({ fields }),
+  })
+  return checkResponse(res)
+}
+
+export async function updateRecord(id, fields) {
+  const res = await fetch(`${baseUrl()}/${id}`, {
+    method: 'PATCH',
+    headers: headers(),
+    body: JSON.stringify({ fields }),
+  })
+  return checkResponse(res)
 }

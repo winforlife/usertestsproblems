@@ -167,7 +167,7 @@
       margin-bottom: 28px;
     }
 
-    /* Scale */
+    /* ── Scale ── */
     .scale {
       display: flex;
       gap: 6px;
@@ -177,8 +177,8 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 7px;
-      padding: 14px 4px;
+      justify-content: center;
+      padding: 20px 4px 18px;
       background: transparent;
       border: 1px solid rgba(200,151,58,0.22);
       color: rgba(247,243,238,0.5);
@@ -195,18 +195,14 @@
       border-color: var(--gold);
       color: var(--gold);
     }
-    .scale-num {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 20px;
-      font-weight: 600;
-      line-height: 1;
-    }
+
     .scale-label {
-      font-size: 8px;
+      font-size: 11px;
       font-weight: 700;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.05em;
       text-transform: uppercase;
-      line-height: 1;
+      line-height: 1.3;
+      text-align: center;
     }
 
     .btn-next {
@@ -312,9 +308,8 @@
     }
 
     @media (max-width: 380px) {
-      .scale-label { font-size: 7px; }
-      .scale-num { font-size: 17px; }
-      .scale-btn { padding: 10px 2px; gap: 5px; }
+      .scale-label { font-size: 9px; }
+      .scale-btn { padding: 16px 2px 14px; }
     }
   </style>
 </head>
@@ -363,23 +358,18 @@
         <p class="q-text" id="js-q-text"></p>
         <div class="scale" id="js-scale">
           <button class="scale-btn" data-value="1" type="button">
-            <span class="scale-num">1</span>
             <span class="scale-label">Jamais</span>
           </button>
           <button class="scale-btn" data-value="2" type="button">
-            <span class="scale-num">2</span>
             <span class="scale-label">Rarement</span>
           </button>
           <button class="scale-btn" data-value="3" type="button">
-            <span class="scale-num">3</span>
             <span class="scale-label">Parfois</span>
           </button>
           <button class="scale-btn" data-value="4" type="button">
-            <span class="scale-num">4</span>
             <span class="scale-label">Souvent</span>
           </button>
           <button class="scale-btn" data-value="5" type="button">
-            <span class="scale-num">5</span>
             <span class="scale-label">Toujours</span>
           </button>
         </div>
@@ -476,45 +466,29 @@
     ]
 
     // ── State ───────────────────────────────────────────────────────────────────
-    let currentIndex   = 0
-    let selectedValue  = null
-    const answers      = {}
+    let currentIndex  = 0
+    let selectedValue = null
+    const answers     = {}
 
     // ── DOM refs ─────────────────────────────────────────────────────────────────
-    const $intro      = document.getElementById('section-intro')
-    const $questions  = document.getElementById('section-questions')
-    const $optin      = document.getElementById('section-optin')
-    const $progress   = document.getElementById('js-progress')
-    const $status     = document.getElementById('js-header-status')
-    const $counter    = document.getElementById('js-q-counter')
-    const $qText      = document.getElementById('js-q-text')
-    const $scaleBtns  = document.querySelectorAll('.scale-btn')
-    const $btnNext    = document.getElementById('js-btn-next')
-    const $btnStart   = document.getElementById('js-btn-start')
-    const $form       = document.getElementById('js-optin-form')
-    const $formError  = document.getElementById('js-form-error')
-    const $btnSubmit  = document.getElementById('js-btn-submit')
-
-    // ── PostHog safe wrapper ─────────────────────────────────────────────────────
-    const isPosthogAvailable = typeof window !== 'undefined'
-      && typeof window.posthog !== 'undefined'
-      && typeof window.posthog.capture === 'function'
-
-    if (!isPosthogAvailable) {
-      console.warn('[analytics] PostHog bypassed: window.posthog indisponible')
-    }
-
-    function captureEvent(eventName, properties = {}) {
-      if (!isPosthogAvailable) return
-      window.posthog.capture(eventName, properties)
-    }
+    const $intro     = document.getElementById('section-intro')
+    const $questions = document.getElementById('section-questions')
+    const $optin     = document.getElementById('section-optin')
+    const $progress  = document.getElementById('js-progress')
+    const $status    = document.getElementById('js-header-status')
+    const $counter   = document.getElementById('js-q-counter')
+    const $qText     = document.getElementById('js-q-text')
+    const $scaleBtns = document.querySelectorAll('.scale-btn')
+    const $btnNext   = document.getElementById('js-btn-next')
+    const $btnStart  = document.getElementById('js-btn-start')
+    const $form      = document.getElementById('js-optin-form')
+    const $formError = document.getElementById('js-form-error')
 
     // ── PostHog init (via /api/config — clé publique) ───────────────────────────
     fetch('/api/config')
       .then(r => r.json())
       .then(cfg => {
-        if (!isPosthogAvailable) return
-
+        if (!cfg.posthogKey) return
         posthog.init(cfg.posthogKey, {
           api_host:          cfg.posthogHost,
           capture_pageview:  true,
@@ -525,7 +499,7 @@
           },
           persistence: 'localStorage',
           loaded: (ph) => {
-            captureEvent('page_viewed', {
+            ph.capture('page_viewed', {
               page:        'questionnaire',
               utm_source,
               utm_content,
@@ -534,9 +508,36 @@
         })
         window._articleUrl = cfg.articleUrl
       })
-      .catch(() => {
-        // PostHog indisponible — le funnel continue normalement
-      })
+      .catch(() => {})
+
+    // ── Save-per-answer : promise chain serialisée ───────────────────────────────
+    // Démarre avec le recordId déjà connu (reprise de session éventuelle)
+    let saveChain = Promise.resolve(localStorage.getItem('airtable_record_id') || null)
+
+    function saveAnswer(questionId, value) {
+      saveChain = saveChain
+        .then(async (recordId) => {
+          const body = { question: questionId, value }
+          if (recordId) {
+            body.recordId = recordId
+          } else {
+            body.utm_source  = utm_source
+            body.utm_content = utm_content
+          }
+          const res  = await fetch('/api/saveanswer', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify(body),
+          })
+          const data = await res.json()
+          if (data.recordId) localStorage.setItem('airtable_record_id', data.recordId)
+          return data.recordId || recordId
+        })
+        .catch(err => {
+          console.error('[saveanswer]', err)
+          return null
+        })
+    }
 
     // ── Afficher une question ────────────────────────────────────────────────────
     function showQuestion(index) {
@@ -549,7 +550,6 @@
       selectedValue = null
       $btnNext.disabled = true
 
-      // Restaurer la réponse si déjà saisie (navigation arrière future)
       const saved = answers[q.id]
       $scaleBtns.forEach(btn => {
         const v = Number(btn.dataset.value)
@@ -573,7 +573,7 @@
 
     // ── Clic "Je commence" ───────────────────────────────────────────────────────
     $btnStart.addEventListener('click', () => {
-      captureEvent('funnel_started', { utm_source, utm_content })
+      window.posthog && posthog.capture('funnel_started', { utm_source, utm_content })
       showSection($questions)
       showQuestion(0)
     })
@@ -581,24 +581,23 @@
     // ── Clic sur une option de l'échelle ─────────────────────────────────────────
     $scaleBtns.forEach(btn => {
       btn.addEventListener('click', () => {
-        const value       = Number(btn.dataset.value)
-        const labelEl     = btn.querySelector('.scale-label')
+        const value         = Number(btn.dataset.value)
+        const labelEl       = btn.querySelector('.scale-label')
         const selectedLabel = labelEl ? labelEl.textContent.trim() : ''
-        const q           = QUESTIONS[currentIndex]
+        const q             = QUESTIONS[currentIndex]
 
         selectedValue = value
         answers[q.id] = value
-
-        // Persister immédiatement
         localStorage.setItem(q.id, value)
 
-        // UI
         $scaleBtns.forEach(b => b.classList.remove('selected'))
         btn.classList.add('selected')
         $btnNext.disabled = false
 
-        // Analytics
-        captureEvent('question_answered', {
+        // Sauvegarde immédiate en DB (fire and forget — ne bloque pas l'UI)
+        saveAnswer(q.id, value)
+
+        window.posthog && posthog.capture('question_answered', {
           question:    q.id,
           value,
           label:       selectedLabel,
@@ -613,7 +612,7 @@
       if (currentIndex >= QUESTIONS.length) {
         $progress.style.width = '100%'
         $status.textContent = ''
-        captureEvent('optin_displayed', { utm_source, utm_content })
+        window.posthog && posthog.capture('optin_displayed', { utm_source, utm_content })
         showSection($optin)
       } else {
         showQuestion(currentIndex)
@@ -624,7 +623,7 @@
     window.addEventListener('beforeunload', () => {
       const answered = Object.keys(answers).length
       if (answered > 0 && answered < QUESTIONS.length) {
-        captureEvent('funnel_abandoned', {
+        window.posthog && posthog.capture('funnel_abandoned', {
           last_question: `q${answered}`,
           answers_count: answered,
           utm_source,
@@ -647,44 +646,40 @@
         return
       }
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        $formError.textContent = 'Format d\'email invalide.'
+        $formError.textContent = "Format d'email invalide."
         return
       }
 
-      // Score moyen côté client
       const qVals = QUESTIONS.map(q => Number(answers[q.id] || localStorage.getItem(q.id) || 0))
       const valid = qVals.filter(v => v >= 1 && v <= 5)
       const scoreMoyen = valid.length
         ? +(valid.reduce((a, b) => a + b, 0) / valid.length).toFixed(2)
         : 0
 
-      // PostHog event
-      captureEvent('optin_submitted', {
+      window.posthog && posthog.capture('optin_submitted', {
         age,
         utm_source,
         utm_content,
         score_moyen: scoreMoyen,
       })
 
-      // Sauvegarder le prénom pour merci.html
       localStorage.setItem('prenom', prenom)
 
-      // Payload
-      const payload = { prenom, age, email, utm_source, utm_content }
+      const airtable_record_id = localStorage.getItem('airtable_record_id') || null
+
+      const payload = { prenom, age, email, utm_source, utm_content, airtable_record_id }
       QUESTIONS.forEach(q => {
         payload[q.id] = Number(answers[q.id] || localStorage.getItem(q.id) || 0)
       })
 
-      // POST async (fire and forget — redirect immédiat)
       fetch('/api/submit', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify(payload),
       }).catch(err => {
-        captureEvent('optin_error', { error: err.message })
+        window.posthog && posthog.capture('optin_error', { error: err.message })
       })
 
-      // Redirect immédiat
       window.location.href = '/merci'
     })
   </script>

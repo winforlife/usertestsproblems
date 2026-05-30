@@ -1,16 +1,15 @@
 import { Resend }  from 'resend'
 import { PostHog } from 'posthog-node'
 import CONFIG      from '../config.js'
-import { createRecord } from './connectors/airtable.js'
+import { createRecord, updateRecord } from './connectors/airtable.js'
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const { prenom, age, email, utm_source, utm_content, ...rest } = req.body ?? {}
+  const { prenom, age, email, utm_source, utm_content, airtable_record_id, ...rest } = req.body ?? {}
 
-  // Validation
   if (!prenom || !age || !email) {
     return res.status(400).json({ error: 'Champs requis manquants' })
   }
@@ -18,33 +17,35 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Format email invalide' })
   }
 
-  // Extraire q1..q10
   const qs = {}
   for (let i = 1; i <= 10; i++) qs[`q${i}`] = Number(rest[`q${i}`]) || 0
 
-  // Score moyen côté serveur
   const vals = Object.values(qs).filter(v => v >= 1 && v <= 5)
   const scoreMoyen = vals.length
     ? +(vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(2)
     : 0
+
+  const airtableFields = {
+    Prenom:      prenom,
+    Age:         age,
+    Email:       email,
+    Q1:          qs.q1,  Q2:  qs.q2,  Q3:  qs.q3,
+    Q4:          qs.q4,  Q5:  qs.q5,  Q6:  qs.q6,
+    Q7:          qs.q7,  Q8:  qs.q8,  Q9:  qs.q9,
+    Q10:         qs.q10,
+    UTM_source:  utm_source  || '',
+    UTM_content: utm_content || '',
+  }
 
   const resend = new Resend(CONFIG.resend.apiKey)
   const ph     = new PostHog(CONFIG.posthog.apiKey, { host: CONFIG.posthog.host })
 
   const results = await Promise.allSettled([
 
-    // 1. Airtable
-    createRecord({
-      Prenom:      prenom,
-      Age:         age,
-      Email:       email,
-      Q1:          qs.q1,  Q2:  qs.q2,  Q3:  qs.q3,
-      Q4:          qs.q4,  Q5:  qs.q5,  Q6:  qs.q6,
-      Q7:          qs.q7,  Q8:  qs.q8,  Q9:  qs.q9,
-      Q10:         qs.q10,
-      UTM_source:  utm_source  || '',
-      UTM_content: utm_content || '',
-    }),
+    // 1. Airtable — met à jour si recordId connu, crée sinon
+    airtable_record_id
+      ? updateRecord(airtable_record_id, airtableFields)
+      : createRecord(airtableFields),
 
     // 2. Email Christophe
     resend.emails.send({
@@ -64,7 +65,6 @@ export default async function handler(req, res) {
 
   ])
 
-  // PostHog server-side — identifie le répondant par email
   ph.capture({
     distinctId: email,
     event:      'submission_saved',
