@@ -444,12 +444,16 @@
   </script>
 
   <script>
+    // ── localStorage sécurisé (évite les exceptions en private mode) ────────────
+    function lsGet(key)      { try { return localStorage.getItem(key) }       catch { return null } }
+    function lsSet(key, val) { try { localStorage.setItem(key, val) }         catch {} }
+
     // ── UTM params ──────────────────────────────────────────────────────────────
     const urlParams   = new URLSearchParams(window.location.search)
-    const utm_source  = urlParams.get('utm_source')  || localStorage.getItem('utm_source')  || ''
-    const utm_content = urlParams.get('utm_content') || localStorage.getItem('utm_content') || ''
-    if (utm_source)  localStorage.setItem('utm_source',  utm_source)
-    if (utm_content) localStorage.setItem('utm_content', utm_content)
+    const utm_source  = urlParams.get('utm_source')  || lsGet('utm_source')  || ''
+    const utm_content = urlParams.get('utm_content') || lsGet('utm_content') || ''
+    if (utm_source)  lsSet('utm_source',  utm_source)
+    if (utm_content) lsSet('utm_content', utm_content)
 
     // ── Questions ───────────────────────────────────────────────────────────────
     const QUESTIONS = [
@@ -512,7 +516,7 @@
 
     // ── Save-per-answer : promise chain serialisée ───────────────────────────────
     // Démarre avec le recordId déjà connu (reprise de session éventuelle)
-    let saveChain = Promise.resolve(localStorage.getItem('airtable_record_id') || null)
+    let saveChain = Promise.resolve(lsGet('airtable_record_id') || null)
 
     function saveAnswer(questionId, value) {
       saveChain = saveChain
@@ -530,7 +534,7 @@
             body:    JSON.stringify(body),
           })
           const data = await res.json()
-          if (data.recordId) localStorage.setItem('airtable_record_id', data.recordId)
+          if (data.recordId) lsSet('airtable_record_id', data.recordId)
           return data.recordId || recordId
         })
         .catch(err => {
@@ -573,9 +577,9 @@
 
     // ── Clic "Je commence" ───────────────────────────────────────────────────────
     $btnStart.addEventListener('click', () => {
-      window.posthog && posthog.capture('funnel_started', { utm_source, utm_content })
       showSection($questions)
       showQuestion(0)
+      try { window.posthog && posthog.capture('funnel_started', { utm_source, utm_content }) } catch {}
     })
 
     // ── Clic sur une option de l'échelle ─────────────────────────────────────────
@@ -588,7 +592,7 @@
 
         selectedValue = value
         answers[q.id] = value
-        localStorage.setItem(q.id, value)
+        lsSet(q.id, value)
 
         $scaleBtns.forEach(b => b.classList.remove('selected'))
         btn.classList.add('selected')
@@ -597,12 +601,12 @@
         // Sauvegarde immédiate en DB (fire and forget — ne bloque pas l'UI)
         saveAnswer(q.id, value)
 
-        window.posthog && posthog.capture('question_answered', {
+        try { window.posthog && posthog.capture('question_answered', {
           question:    q.id,
           value,
           label:       selectedLabel,
           utm_content,
-        })
+        }) } catch {}
       })
     })
 
@@ -612,8 +616,8 @@
       if (currentIndex >= QUESTIONS.length) {
         $progress.style.width = '100%'
         $status.textContent = ''
-        window.posthog && posthog.capture('optin_displayed', { utm_source, utm_content })
         showSection($optin)
+        try { window.posthog && posthog.capture('optin_displayed', { utm_source, utm_content }) } catch {}
       } else {
         showQuestion(currentIndex)
       }
@@ -623,12 +627,12 @@
     window.addEventListener('beforeunload', () => {
       const answered = Object.keys(answers).length
       if (answered > 0 && answered < QUESTIONS.length) {
-        window.posthog && posthog.capture('funnel_abandoned', {
+        try { window.posthog && posthog.capture('funnel_abandoned', {
           last_question: `q${answered}`,
           answers_count: answered,
           utm_source,
           utm_content,
-        })
+        }) } catch {}
       }
     })
 
@@ -650,26 +654,26 @@
         return
       }
 
-      const qVals = QUESTIONS.map(q => Number(answers[q.id] || localStorage.getItem(q.id) || 0))
+      const qVals = QUESTIONS.map(q => Number(answers[q.id] || lsGet(q.id) || 0))
       const valid = qVals.filter(v => v >= 1 && v <= 5)
       const scoreMoyen = valid.length
         ? +(valid.reduce((a, b) => a + b, 0) / valid.length).toFixed(2)
         : 0
 
-      window.posthog && posthog.capture('optin_submitted', {
+      try { window.posthog && posthog.capture('optin_submitted', {
         age,
         utm_source,
         utm_content,
         score_moyen: scoreMoyen,
-      })
+      }) } catch {}
 
-      localStorage.setItem('prenom', prenom)
+      lsSet('prenom', prenom)
 
-      const airtable_record_id = localStorage.getItem('airtable_record_id') || null
+      const airtable_record_id = lsGet('airtable_record_id') || null
 
       const payload = { prenom, age, email, utm_source, utm_content, airtable_record_id }
       QUESTIONS.forEach(q => {
-        payload[q.id] = Number(answers[q.id] || localStorage.getItem(q.id) || 0)
+        payload[q.id] = Number(answers[q.id] || lsGet(q.id) || 0)
       })
 
       fetch('/api/submit', {
@@ -677,7 +681,7 @@
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify(payload),
       }).catch(err => {
-        window.posthog && posthog.capture('optin_error', { error: err.message })
+        try { window.posthog && posthog.capture('optin_error', { error: err.message }) } catch {}
       })
 
       window.location.href = '/merci'
