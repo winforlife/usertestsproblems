@@ -533,7 +533,12 @@
             headers: { 'Content-Type': 'application/json' },
             body:    JSON.stringify(body),
           })
-          const data = await res.json()
+          const data = await res.json().catch(() => ({}))
+          if (!res.ok) {
+            // Erreur serveur : invalider l'ID en cache pour forcer une création au prochain appel
+            try { localStorage.removeItem('airtable_record_id') } catch {}
+            return null
+          }
           if (data.recordId) lsSet('airtable_record_id', data.recordId)
           return data.recordId || recordId
         })

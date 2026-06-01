@@ -42,10 +42,19 @@ export default async function handler(req, res) {
 
   const results = await Promise.allSettled([
 
-    // 1. Airtable — met à jour si recordId connu, crée sinon
-    airtable_record_id
-      ? updateRecord(airtable_record_id, airtableFields)
-      : createRecord(airtableFields),
+    // 1. Airtable — update si recordId connu, fallback create si record introuvable
+    (async () => {
+      if (airtable_record_id) {
+        try {
+          return await updateRecord(airtable_record_id, airtableFields)
+        } catch (err) {
+          const isNotFound = /404|NOT_FOUND/i.test(err.message)
+          if (!isNotFound) throw err
+          console.warn('[submit] record introuvable, création d\'un nouveau:', airtable_record_id)
+        }
+      }
+      return createRecord(airtableFields)
+    })(),
 
     // 2. Email Christophe
     resend.emails.send({
