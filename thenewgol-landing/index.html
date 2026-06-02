@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The New Game of Life</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --s1:#0D1B2E; --s2:#0F2035; --s3:#0B1928;
+    --s4:#101F30; --s5:#0E1D2C; --s6:#0C1B29; --s7:#0F2035;
+    --gold:#c8973a; --gold-lt:#e8b84b;
+    --gold-dim:rgba(200,151,58,0.15);
+    --gold-bg:rgba(200,151,58,0.05);
+    --cream:#f7f3ee; --white:#ffffff;
+    --pad-x:clamp(24px,6vw,80px);
+    --pad-y:clamp(64px,9vw,112px);
+    --max:860px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--s1);color:var(--cream);font-family:'Montserrat',sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+
+  /* NAV */
+  nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;justify-content:space-between;align-items:center;padding:14px var(--pad-x);background:rgba(13,27,46,0.97);border-bottom:1px solid var(--gold-dim);backdrop-filter:blur(12px);transform:translateY(-100%);transition:transform .4s ease;}
+  nav.visible{transform:translateY(0);}
+  .nav-left{display:flex;flex-direction:column;gap:2px;}
+  .nav-logo{font-family:'Cormorant Garamond',serif;font-size:clamp(13px,2vw,16px);font-weight:700;letter-spacing:3px;color:var(--gold);text-transform:uppercase;line-height:1;}
+  .nav-tagline{font-family:'Cormorant Garamond',serif;font-size:11px;font-style:italic;font-weight:300;color:var(--cream);opacity:.45;letter-spacing:1px;}
+  .nav-right{display:flex;align-items:center;gap:12px;}
+  .nav-btn{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);font-weight:700;cursor:pointer;border:1px solid var(--gold-dim);padding:8px 16px;background:none;font-family:'Montserrat',sans-serif;transition:all .3s;}
+  .nav-btn:hover{background:var(--gold);color:#0D1B2E;}
+  .nav-ham{display:flex;flex-direction:column;gap:4px;cursor:pointer;padding:6px;background:none;border:none;}
+  .nav-ham span{display:block;width:18px;height:1px;background:var(--cream);opacity:.6;transition:all .3s;}
+  .nav-ham:hover span{opacity:1;background:var(--gold);}
+  .nav-menu{position:fixed;top:0;right:-280px;width:260px;height:100vh;background:#0A1525;border-left:1px solid var(--gold-dim);z-index:300;transition:right .35s cubic-bezier(.4,0,.2,1);padding:80px 32px 40px;display:flex;flex-direction:column;}
+  .nav-menu.open{right:0;}
+  .nav-menu-close{position:absolute;top:20px;right:20px;font-size:18px;color:var(--cream);opacity:.4;cursor:pointer;background:none;border:none;font-family:inherit;transition:opacity .2s;}
+  .nav-menu-close:hover{opacity:1;color:var(--gold);}
+  .nav-menu a{display:block;padding:14px 0;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--cream);opacity:.5;text-decoration:none;border-bottom:1px solid rgba(200,151,58,0.08);font-weight:600;transition:all .2s;}
+  .nav-menu a:last-child{border-bottom:none;}
+  .nav-menu a:hover{opacity:1;color:var(--gold);padding-left:8px;}
+  .nav-overlay{display:none;position:fixed;inset:0;z-index:250;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);}
+  .nav-overlay.active{display:block;}
+
+  /* SECTIONS */
+  .s{padding:var(--pad-y) var(--pad-x);}
+  .s-inner{max-width:var(--max);margin:0 auto;}
+  .s-a{background:var(--s1);} .s-b{background:var(--s2);} .s-c{background:var(--s3);}
+  .s-d{background:var(--s4);} .s-e{background:var(--s5);} .s-f{background:var(--s6);} .s-g{background:var(--s7);}
+
+  /* SECTION ANATOMY */
+  .s-tag{font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);font-weight:600;display:block;margin-bottom:14px;opacity:.75;}
+  .s-title{font-family:'Cormorant Garamond',serif;font-size:clamp(32px,6vw,52px);font-weight:700;color:var(--white);line-height:1.05;margin-bottom:10px;}
+  .s-title em{color:var(--gold);font-style:normal;}
+  .s-subtitle{font-family:'Cormorant Garamond',serif;font-size:clamp(16px,2.8vw,20px);font-style:italic;font-weight:300;color:var(--cream);opacity:.7;margin-bottom:20px;line-height:1.5;}
+  .s-rule{width:40px;height:2px;background:var(--gold);margin:20px 0;}
+  .s-short{font-size:clamp(13px,2.2vw,15px);line-height:1.85;color:var(--cream);opacity:.65;max-width:640px;margin-bottom:16px;}
+  .s-short em{color:var(--gold);font-style:italic;opacity:1;}
+
+  /* ACCORDION */
+  .l2{max-height:0;overflow:hidden;transition:max-height .55s cubic-bezier(.4,0,.2,1),opacity .45s ease;opacity:0;}
+  .l2.open{max-height:3000px;opacity:1;}
+  .l2-body{padding-top:20px;border-top:1px solid var(--gold-dim);margin-top:20px;}
+  .l2-p{font-size:clamp(13px,2vw,15px);line-height:1.9;color:var(--cream);opacity:.55;margin-bottom:16px;max-width:640px;}
+  .l2-p em{color:var(--gold);font-style:italic;opacity:1;}
+  .toggle-btn{display:inline-flex;align-items:center;gap:8px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:600;cursor:pointer;background:none;border:none;font-family:'Montserrat',sans-serif;margin-top:16px;padding:0;transition:gap .25s;}
+  .toggle-btn:hover{gap:12px;}
+  .toggle-btn .arr{transition:transform .35s;display:inline-block;}
+  .toggle-btn.open .arr{transform:rotate(90deg);}
+
+  /* QUOTE & CALLOUT */
+  .q-block{border-left:3px solid var(--gold);padding:18px 22px;margin:24px 0;background:var(--gold-bg);}
+  .q-block p{font-family:'Cormorant Garamond',serif;font-size:clamp(17px,2.8vw,21px);font-style:italic;color:var(--cream);line-height:1.55;}
+  .callout{border:1px solid var(--gold-dim);padding:clamp(22px,4vw,36px);margin:24px 0;}
+  .callout h3{font-family:'Cormorant Garamond',serif;font-size:clamp(19px,3.5vw,26px);font-weight:600;color:var(--white);margin-bottom:10px;}
+  .callout p{font-size:13px;color:var(--cream);opacity:.5;line-height:1.9;font-style:italic;max-width:520px;}
+
+  /* GRID */
+  .grid-4{display:grid;grid-template-columns:1fr;gap:2px;margin-top:28px;}
+  @media(min-width:520px){.grid-4{grid-template-columns:repeat(2,1fr);}}
+  @media(min-width:860px){.grid-4{grid-template-columns:repeat(4,1fr);}}
+
+  /* MIRROR CARDS */
+  .card{padding:clamp(20px,3.5vw,28px) clamp(16px,2.5vw,22px);border-top:2px solid transparent;transition:all .3s;display:flex;flex-direction:column;}
+  .card:hover{border-top-color:var(--gold);background:var(--gold-bg);}
+  .card-bg-a{background:#0F2438;}
+  .card-icon{display:block;margin-bottom:16px;line-height:0;}
+  .card-title{font-family:'Cormorant Garamond',serif;font-size:clamp(18px,3vw,21px);font-weight:600;color:var(--white);margin-bottom:8px;line-height:1.2;}
+  .card-text{font-size:12px;color:var(--cream);opacity:.45;line-height:1.8;flex:1;}
+  .card-toggle{margin-top:14px;}
+
+  /* STEP CARDS */
+  .steps-row{display:grid;grid-template-columns:1fr;gap:2px;margin-top:28px;}
+  @media(min-width:580px){.steps-row{grid-template-columns:repeat(3,1fr);}}
+  .step-card{padding:clamp(24px,4vw,36px) clamp(20px,3vw,28px);background:#0F2438;border-top:2px solid transparent;cursor:pointer;transition:all .3s;display:flex;flex-direction:column;}
+  .step-card:hover{border-top-color:var(--gold);}
+  .step-num{font-size:9px;letter-spacing:3px;color:var(--gold);font-weight:600;display:block;margin-bottom:12px;}
+  .step-title{font-family:'Cormorant Garamond',serif;font-size:clamp(20px,3.5vw,24px);font-weight:600;color:var(--white);margin-bottom:10px;}
+  .step-line{font-size:12px;color:var(--cream);opacity:.5;line-height:1.8;margin-bottom:8px;}
+  .step-sub{font-size:11px;color:var(--gold);opacity:.6;font-style:italic;line-height:1.7;margin-bottom:12px;flex:1;}
+  .step-more{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);opacity:.55;font-weight:600;margin-top:auto;}
+
+  /* METHOD INTRO BOX */
+  .intro-box{background:var(--gold-bg);border:1px solid var(--gold-dim);padding:clamp(20px,4vw,32px);margin:24px 0 0;}
+  .intro-box p{font-size:clamp(12px,2vw,14px);color:var(--cream);opacity:.65;line-height:1.9;font-style:italic;}
+
+  /* PACKAGE CARDS */
+  .pkg-card{padding:clamp(22px,3.5vw,32px) clamp(18px,2.5vw,24px);background:#0F2438;border-top:2px solid transparent;cursor:pointer;transition:border-color .3s;display:flex;flex-direction:column;position:relative;}
+  .pkg-card:hover{border-top-color:var(--gold);}
+  .pkg-card.featured{border-top-color:var(--gold);}
+  .pkg-card.mystery{background:#070D18;}
+  .pkg-badge{position:absolute;top:0;right:18px;background:var(--gold);color:#0D1B2E;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;padding:4px 10px;}
+  .pkg-lv{font-size:9px;letter-spacing:3px;color:var(--gold);font-weight:600;margin-bottom:8px;}
+  .pkg-title{font-family:'Cormorant Garamond',serif;font-size:clamp(19px,3vw,23px);font-weight:700;color:var(--white);line-height:1.15;margin-bottom:8px;}
+  .pkg-price{font-family:'Cormorant Garamond',serif;font-size:clamp(22px,4vw,28px);font-weight:700;color:var(--gold);}
+  .pkg-dur{font-size:10px;color:var(--cream);opacity:.3;letter-spacing:1px;margin-bottom:14px;margin-top:2px;}
+  .pkg-line{font-size:12px;color:var(--cream);opacity:.45;font-style:italic;line-height:1.7;margin-bottom:14px;flex:1;}
+  .pkg-more{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:700;margin-top:auto;}
+
+  /* TRANSITION BAND */
+  .t-band{border-top:1px solid var(--gold-dim);border-bottom:1px solid var(--gold-dim);padding:22px var(--pad-x);text-align:center;background:#0A1828;}
+  .t-band p{font-family:'Cormorant Garamond',serif;font-size:clamp(15px,2.5vw,18px);font-style:italic;color:var(--gold);opacity:.7;max-width:580px;margin:0 auto;}
+
+  /* BUTTONS */
+  .btn{display:inline-block;padding:13px 26px;cursor:pointer;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;font-weight:700;font-family:'Montserrat',sans-serif;border:none;transition:all .3s;}
+  .btn-gold{background:var(--gold);color:#0D1B2E;}
+  .btn-gold:hover{background:var(--gold-lt);transform:translateY(-2px);}
+  .btn-ghost{background:none;color:var(--gold);border:1px solid var(--gold-dim);}
+  .btn-ghost:hover{background:var(--gold-bg);}
+
+  /* HERO */
+  .hero{min-height:100vh;position:relative;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;}
+  .hero-bg{position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1400&q=80') center 30%/cover;filter:saturate(.5) brightness(.35);}
+  .hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(13,27,46,.15) 0%,rgba(13,27,46,.65) 50%,var(--s1) 100%);}
+  .hero-content{position:relative;z-index:2;padding:120px var(--pad-x) 64px;max-width:calc(var(--max) + var(--pad-x)*2);margin:0 auto;width:100%;}
+  .hero-h1{font-family:'Cormorant Garamond',serif;font-size:clamp(52px,11vw,92px);font-weight:700;line-height:.95;color:var(--white);animation:fadeUp .8s .2s ease both;}
+  .hero-h1 em{color:var(--gold);font-style:normal;display:block;}
+  .hero-tagline{font-family:'Cormorant Garamond',serif;font-size:clamp(18px,3.5vw,26px);font-style:italic;font-weight:300;color:var(--cream);opacity:.75;margin:18px 0 6px;animation:fadeUp .8s .32s ease both;}
+  .hero-sub{font-size:11px;letter-spacing:1px;color:var(--cream);opacity:.38;font-style:italic;margin-bottom:28px;animation:fadeUp .8s .42s ease both;}
+  .hero-quote{font-family:'Cormorant Garamond',serif;font-size:clamp(18px,3vw,23px);font-style:italic;color:var(--cream);opacity:.8;line-height:1.45;border-left:2px solid var(--gold);padding-left:20px;margin-bottom:32px;max-width:560px;animation:fadeUp .8s .52s ease both;}
+  .hero-btns{display:flex;flex-wrap:wrap;gap:12px;animation:fadeUp .8s .62s ease both;}
+
+  /* STORY */
+  .story-split{display:grid;grid-template-columns:1fr;gap:40px;}
+  @media(min-width:640px){.story-split{grid-template-columns:1fr 2fr;gap:56px;align-items:start;}}
+  .story-p{font-size:clamp(13px,2vw,15px);color:var(--cream);opacity:.58;line-height:1.95;margin-bottom:16px;}
+  .story-pull{border-left:2px solid var(--gold);padding-left:20px;margin:20px 0;}
+  .story-pull p{font-family:'Cormorant Garamond',serif;font-size:clamp(17px,2.8vw,21px);font-style:italic;color:var(--cream);opacity:.82;line-height:1.5;}
+
+  /* INVITATION */
+  .invite-em{font-family:'Cormorant Garamond',serif;font-size:clamp(17px,3vw,21px);font-style:italic;color:var(--gold);opacity:.8;margin:18px 0 32px;display:block;line-height:1.5;}
+
+  /* OVERLAY */
+  .overlay-mask{display:none;position:fixed;inset:0;z-index:400;background:rgba(5,12,22,.93);backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:20px;}
+  .overlay-mask.active{display:flex;}
+  .overlay-box{background:#0F2035;border:1px solid var(--gold-dim);max-width:640px;width:100%;max-height:88vh;overflow-y:auto;padding:clamp(26px,5vw,44px);position:relative;scrollbar-width:thin;scrollbar-color:var(--gold-dim) transparent;}
+  .ov-close{position:absolute;top:14px;right:18px;font-size:20px;color:var(--cream);opacity:.35;cursor:pointer;background:none;border:none;font-family:inherit;transition:opacity .2s;}
+  .ov-close:hover{opacity:1;color:var(--gold);}
+  .ov-tag{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:14px;opacity:.75;}
+  .ov-title{font-family:'Cormorant Garamond',serif;font-size:clamp(24px,5vw,34px);font-weight:700;color:var(--white);margin-bottom:18px;line-height:1.1;}
+  .ov-rule{width:36px;height:2px;background:var(--gold);margin-bottom:22px;}
+  .ov-p{font-size:14px;color:var(--cream);opacity:.6;line-height:1.9;margin-bottom:14px;}
+  .ov-p em{color:var(--gold);font-style:italic;opacity:1;}
+  .ov-list{list-style:none;margin:14px 0 22px;}
+  .ov-list li{font-size:13px;color:var(--cream);opacity:.52;padding:8px 0 8px 20px;position:relative;line-height:1.5;border-bottom:1px solid var(--gold-dim);}
+  .ov-list li:last-child{border-bottom:none;}
+  .ov-list li::before{content:'→';position:absolute;left:0;color:var(--gold);opacity:.7;}
+
+  /* TESTIMONIALS */
+  .testimonials{margin-top:48px;padding-top:40px;border-top:1px solid var(--gold-dim);}
+  .testimonials-label{font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);font-weight:600;display:block;margin-bottom:28px;opacity:.7;}
+  .testimonials-grid{display:grid;grid-template-columns:1fr;gap:16px;}
+  @media(min-width:580px){.testimonials-grid{grid-template-columns:repeat(3,1fr);}}
+  .t-card{background:#0A1828;border:1px solid var(--gold-dim);padding:24px;display:flex;flex-direction:column;gap:16px;}
+  .t-top{display:flex;align-items:center;gap:14px;}
+  .t-photo{width:48px;height:48px;border-radius:50%;background:var(--gold-dim);overflow:hidden;flex-shrink:0;border:1px solid var(--gold-dim);}
+  .t-photo img{width:100%;height:100%;object-fit:cover;filter:saturate(.7) brightness(.9);}
+  .t-name{font-size:13px;font-weight:600;color:var(--white);margin-bottom:2px;}
+  .t-role{font-size:11px;color:var(--gold);opacity:.6;}
+  .t-quote{font-family:'Cormorant Garamond',serif;font-size:16px;font-style:italic;color:var(--cream);opacity:.8;line-height:1.65;}
+
+  /* CALENDLY */
+  .cal-module{margin-top:40px;background:#070E1A;border:1px solid var(--gold-dim);padding:clamp(28px,5vw,44px);text-align:center;}
+  .cal-label{font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);font-weight:600;display:block;margin-bottom:14px;opacity:.7;}
+  .cal-title{font-family:'Cormorant Garamond',serif;font-size:clamp(20px,3.5vw,26px);font-weight:600;color:var(--white);margin-bottom:8px;}
+  .cal-sub{font-size:13px;color:var(--cream);opacity:.5;font-style:italic;margin:0 auto 28px;max-width:420px;line-height:1.7;}
+  .cal-btn{display:inline-flex;align-items:center;gap:10px;background:var(--gold);color:#0D1B2E;padding:14px 28px;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;font-weight:700;font-family:'Montserrat',sans-serif;border:none;cursor:pointer;transition:all .3s;text-decoration:none;}
+  .cal-btn:hover{background:var(--gold-lt);transform:translateY(-2px);}
+
+  @keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="main-nav">
+  <div class="nav-left">
+    <div class="nav-logo">The New Game of Life</div>
+    <div class="nav-tagline">A path for entrepreneurs</div>
+  </div>
+  <div class="nav-right">
+    <button class="nav-btn" onclick="goToQuestionnaire('nav')">Begin →</button>
+    <button class="nav-ham" onclick="openMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<div class="nav-overlay" id="nav-overlay" onclick="closeMenu()"></div>
+<div class="nav-menu" id="nav-menu">
+  <button class="nav-menu-close" onclick="closeMenu()">✕</button>
+  <a href="#problem" onclick="closeMenu()">The Problem</a>
+  <a href="#mirror" onclick="closeMenu()">The Mirror</a>
+  <a href="#believe" onclick="closeMenu()">The Believe</a>
+  <a href="#method" onclick="closeMenu()">The Method</a>
+  <a href="#proposition" onclick="closeMenu()">The Proposition</a>
+  <a href="#story" onclick="closeMenu()">The Story</a>
+</div>
+
+<!-- HERO -->
+<div class="hero" id="hero-section">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <h1 class="hero-h1">The New<br><em>Game of Life</em></h1>
+    <p class="hero-tagline">Your results don't match what you sense is possible.</p>
+    <p class="hero-sub">A path for entrepreneurs ready to open the box.</p>
+    <p class="hero-quote">Behind the scenes, there is a character leading the operations. You didn't build him consciously. But he runs the show.</p>
+    <div class="hero-btns">
+      <button class="btn btn-gold" onclick="scrollToNext()">More ↓</button>
+      <button class="btn btn-ghost" onclick="openOv('ov-story')">The full story</button>
+    </div>
+  </div>
+</div>
+
+<div class="t-band" style="border-top:none"><p>You build. You deliver. But something essential is missing.</p></div>
+
+<!-- S1 · THE PROBLEM -->
+<div class="s s-b" id="problem">
+  <div class="s-inner">
+    <span class="s-tag">— The Problem</span>
+    <h2 class="s-title">You work hard.<br>But do your results match<br><em>what you sense is possible?</em></h2>
+    <p class="s-subtitle">You build. You deliver. But something essential is missing.</p>
+    <div class="s-rule"></div>
+    <p class="s-short">That feeling is not weakness. It is not ingratitude. It is the most honest signal you have. Not a failure — a signal pointing to something you have not yet looked at directly.</p>
+    <button class="toggle-btn" onclick="tog('prob-l2',this)"><span>More</span><span class="arr">›</span></button>
+    <div class="l2" id="prob-l2">
+      <div class="l2-body">
+        <div class="q-block">
+          <p>There is a part of what shapes your results that has never appeared in a dashboard. Not because it doesn't exist — because it operates below the surface. The work begins there.</p>
+        </div>
+        <p class="l2-p">Most of what creates resistance in your business is invisible — not because it is hidden, but because no one has shown you where to look. That is where this work begins.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="t-band" style="border-top:none"><p>The business reflects the person building it.</p></div>
+
+<!-- S2 · THE MIRROR -->
+<div class="s s-c" id="mirror">
+  <div class="s-inner">
+    <span class="s-tag">— The Mirror</span>
+    <h2 class="s-title">The business<br>is a <em>mirror.</em></h2>
+    <p class="s-subtitle">The business reflects the person building it.</p>
+    <div class="s-rule"></div>
+    <p class="s-short">Most programs focus on what you do. This one focuses on who you are while you do it. Because the business is not separate from the person building it — it is a direct reflection of them, in every decision, every dynamic, every result.</p>
+    <div class="grid-4" style="margin-top:28px">
+
+      <div class="card card-bg-a">
+        <span class="card-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#c8973a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/><path d="M5.6 5.6l12.8 12.8M18.4 5.6L5.6 18.4"/></svg>
+        </span>
+        <p class="card-title">The Iceberg</p>
+        <p class="card-text">The part you see — strategy, results, team — is real. But the part below the surface is larger, and it shapes everything above it without ever appearing in a dashboard.</p>
+        <button class="toggle-btn card-toggle" onclick="tog('bb-l2-1',this)"><span>More</span><span class="arr">›</span></button>
+        <div class="l2" id="bb-l2-1">
+          <div class="l2-body">
+            <p class="l2-p" style="font-size:12px">When you change the observer, everything observed begins to shift — the team dynamics, the decisions, the results. This is where the real leverage lives.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card card-bg-a">
+        <span class="card-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#c8973a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M12 6v6l4 2"/></svg>
+        </span>
+        <p class="card-title">The Observer</p>
+        <p class="card-text">The quality of what you see depends on who is looking. Change the observer — change what becomes visible. And what becomes visible changes what becomes possible.</p>
+        <button class="toggle-btn card-toggle" onclick="tog('bb-l2-2',this)"><span>More</span><span class="arr">›</span></button>
+        <div class="l2" id="bb-l2-2">
+          <div class="l2-body">
+            <p class="l2-p" style="font-size:12px">This work creates a quality of attention we rarely bring to ourselves — honest, without judgment, and surprisingly direct. What you see from there changes what becomes possible.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card card-bg-a">
+        <span class="card-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#c8973a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </span>
+        <p class="card-title">Your Singularity</p>
+        <p class="card-text">There is a combination of gifts, values and vision that belongs to you and no one else. Building from that place changes what you attract, what you create, and what sustains.</p>
+        <button class="toggle-btn card-toggle" onclick="tog('bb-l2-3',this)"><span>More</span><span class="arr">›</span></button>
+        <div class="l2" id="bb-l2-3">
+          <div class="l2-body">
+            <p class="l2-p" style="font-size:12px">When what you build is genuinely aligned with who you are, it attracts differently, creates differently, and sustains differently — not as a philosophical ideal, but as a practical, measurable shift.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card card-bg-a">
+        <span class="card-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#c8973a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.52 0 10-4.48 10-10S17.52 2 12 2 2 6.48 2 12s4.48 10 10 10z"/><path d="M8 12l2.5 2.5L16 9"/></svg>
+        </span>
+        <p class="card-title">Unified Success</p>
+        <p class="card-text">When what you build reflects who you are — everything changes. Not as a destination to reach. As the ground from which you operate, in business, in life, in everything you build.</p>
+        <button class="toggle-btn card-toggle" onclick="tog('bb-l2-4',this)"><span>More</span><span class="arr">›</span></button>
+        <div class="l2" id="bb-l2-4">
+          <div class="l2-body">
+            <p class="l2-p" style="font-size:12px">Most entrepreneurs treat coherence as something that will come once the company performs. This work reverses that logic. Coherence is the starting point. Everything built from that ground carries a different quality.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="t-band" style="border-top:none"><p>The gap was never out there. It was always in here.</p></div>
+
+<!-- S3 · THE BELIEVE -->
+<div class="s s-d" id="believe">
+  <div class="s-inner">
+    <span class="s-tag">— The Believe</span>
+    <h2 class="s-title"><em>A different gaze</em><br>creates a different reality.</h2>
+    <p class="s-subtitle">It was never a gap. It was a character, built without your knowing.</p>
+    <div class="s-rule"></div>
+    <p class="s-short">The solution is already in you, waiting for a different quality of attention. The shift does not come from working harder. It comes from looking differently, from within, at what has been running quietly in the background all along.</p>
+    <button class="toggle-btn" onclick="tog('cause-l2',this)"><span>More</span><span class="arr">›</span></button>
+    <div class="l2" id="cause-l2">
+      <div class="l2-body">
+        <p class="l2-p">Early in life, long before the first pitch deck, each of us built a set of invisible strategies, ways of protecting ourselves from fear, rejection, and pain. Intelligent strategies. They worked.</p>
+        <p class="l2-p">But over time, quietly, those strategies became the walls of a prison we built ourselves. And from inside that prison, some of what we most want, freedom, peace, alignment, stays just out of reach.</p>
+        <div class="callout">
+          <h3>The work begins with seeing what has been running the show.</h3>
+          <p>Not fixing. Not forcing. Seeing — with a quality of attention that changes what becomes possible.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="t-band" style="border-top:none"><p>Three movements. One direction. Your pace.</p></div>
+
+<!-- S4 · THE METHOD -->
+<div class="s s-e" id="method">
+  <div class="s-inner">
+    <span class="s-tag">— The Method</span>
+    <h2 class="s-title">Three movements.<br><em>One direction.</em></h2>
+    <p class="s-subtitle">Three movements. One direction. Your pace.</p>
+    <div class="s-rule"></div>
+    <p class="s-short">A progressive deepening. Each movement opens a new quality of seeing. The first shows you what is there. The second helps you understand it. The third lets you live from what you have found.</p>
+    <div class="intro-box">
+      <p>Because real transformation requires real space to be seen, challenged, and to integrate what changes. The work happens from the inside out — first you see, then you understand, then you live from what you have found.</p>
+    </div>
+    <div class="steps-row">
+      <div class="step-card" onclick="openOv('ov-s1')">
+        <span class="step-num">01 · Step 1</span>
+        <p class="step-title">Open Your Eyes</p>
+        <p class="step-line">See what is actually there, in your business, in your patterns, in yourself.</p>
+        <p class="step-sub">Most of what is blocking you has been invisible, not because it is hidden, but because you have never been shown where to look.</p>
+        <span class="step-more">Discover →</span>
+      </div>
+      <div class="step-card" onclick="openOv('ov-s2')">
+        <span class="step-num">02 · Step 2</span>
+        <p class="step-title">Orient Your Gaze</p>
+        <p class="step-line">Understand where it comes from. Choose where to look next.</p>
+        <p class="step-sub">This is where the real shift happens, not in what you do, but in the place you do it from. A different origin. A different result.</p>
+        <span class="step-more">Discover →</span>
+      </div>
+      <div class="step-card" onclick="openOv('ov-s3')">
+        <span class="step-num">03 · Step 3</span>
+        <p class="step-title">Live From There</p>
+        <p class="step-line">Build, decide, and lead from who you actually are.</p>
+        <p class="step-sub">Not from the character you built to succeed. From what was always underneath it, waiting to be recovered.</p>
+        <span class="step-more">Discover →</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="t-band" style="border-top:none"><p>Four levels. Each one deeper than the last.</p></div>
+
+<!-- S5 · THE PROPOSITION -->
+<div class="s s-f" id="proposition">
+  <div class="s-inner">
+    <span class="s-tag">— The Proposition</span>
+    <h2 class="s-title">Four steps.<br>One path. <em>Your pace.</em></h2>
+    <p class="s-subtitle">Four levels. Each one deeper than the last.</p>
+    <div class="s-rule"></div>
+    <p class="s-short">You can enter at any level. But the path reveals itself most fully when walked from the beginning. Each level is complete in itself and cumulative — the deeper you go, the smaller the group, the more intimate the work.</p>
+    <div class="grid-4">
+
+      <div class="pkg-card" onclick="openOv('ov-p1')">
+        <span class="pkg-badge">Start here</span>
+        <p class="pkg-lv">Step 1</p>
+        <p class="pkg-title">Open Your Eyes</p>
+        <p class="pkg-dur">One week</p>
+        <p class="pkg-line">Five days to see what you have not been seeing. One contained experience to shift the quality of your attention.</p>
+        <span class="pkg-more">Details →</span>
+      </div>
+
+      <div class="pkg-card" onclick="openOv('ov-p2')">
+        <p class="pkg-lv">Step 2</p>
+        <p class="pkg-title">Orient Your Gaze</p>
+        <p class="pkg-dur">One month</p>
+        <p class="pkg-line">A month of structured deepening. Patterns become visible. You begin to understand where they come from and how to move differently.</p>
+        <span class="pkg-more">Details →</span>
+      </div>
+
+      <div class="pkg-card" onclick="openOv('ov-p3')">
+        <p class="pkg-lv">Step 3</p>
+        <p class="pkg-title">Live From There</p>
+        <p class="pkg-dur">Three months</p>
+        <p class="pkg-line">Three months where the work becomes a practice. Woven into the daily reality of building your company and your life from the inside out.</p>
+        <span class="pkg-more">Details →</span>
+      </div>
+
+      <div class="pkg-card mystery" onclick="openOv('ov-p4')">
+        <p class="pkg-lv">Step 4</p>
+        <p class="pkg-title">Beyond the Game</p>
+        <p class="pkg-dur">By resonance</p>
+        <p class="pkg-line">The mystery school without mystery. For those who feel the path extends further, into layers beyond conditioning, beyond character, beyond the game.</p>
+        <span class="pkg-more">Details →</span>
+      </div>
+
+    </div>
+
+    <!-- Testimonials -->
+    <div class="testimonials">
+      <span class="testimonials-label">— They walked the path</span>
+      <div class="testimonials-grid">
+
+        <div class="t-card">
+          <div class="t-top">
+            <div class="t-photo">
+              <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=96&q=80" alt="Thomas">
+            </div>
+            <div>
+              <p class="t-name">Thomas</p>
+              <p class="t-role">Founder · SaaS B2B</p>
+            </div>
+          </div>
+          <p class="t-quote">"I came in looking for a better strategy. I left with something I didn't expect — a clarity about who was actually making my decisions."</p>
+        </div>
+
+        <div class="t-card">
+          <div class="t-top">
+            <div class="t-photo">
+              <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=96&q=80" alt="Sophie">
+            </div>
+            <div>
+              <p class="t-name">Sophie</p>
+              <p class="t-role">CEO · Consulting</p>
+            </div>
+          </div>
+          <p class="t-quote">"The work doesn't tell you what to do. It shows you what has been running the show — and that changes everything."</p>
+        </div>
+
+        <div class="t-card">
+          <div class="t-top">
+            <div class="t-photo">
+              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=96&q=80" alt="Marc">
+            </div>
+            <div>
+              <p class="t-name">Marc</p>
+              <p class="t-role">Entrepreneur · 3 ventures</p>
+            </div>
+          </div>
+          <p class="t-quote">"I had tried everything. This was the first thing that addressed what was actually underneath all the patterns I kept repeating."</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Calendly Module -->
+    <div class="cal-module">
+      <span class="cal-label">— A first conversation</span>
+      <h3 class="cal-title">Not sure where to start?</h3>
+      <p class="cal-sub">Book a free 30-minute introduction call. An open conversation — no pitch, no pressure. Just a space to explore whether this path makes sense for where you are.</p>
+      <a class="cal-btn" id="js-calendly-btn" href="https://calendly.com/christophejouret" target="_blank" rel="noopener"
+         onclick="ph('calendly_clicked')">
+        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:#0D1B2E;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        Schedule a conversation
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<!-- S6 · THE STORY -->
+<div class="s s-g" id="story">
+  <div class="s-inner">
+    <div class="story-split">
+      <div>
+        <span class="s-tag">— The Story</span>
+        <h2 class="s-title">I sold my company on a Thursday.</h2>
+        <p class="s-subtitle">Not a system learned. A path walked.</p>
+        <div class="s-rule"></div>
+        <p class="s-short">Not because the numbers were bad. Because one morning, sitting in my car, looking at what I had built, I felt nothing I fully recognized as mine. That moment was the beginning of everything.</p>
+        <button class="btn btn-gold" style="margin-top:24px" onclick="openOv('ov-story')">Read the full story</button>
+      </div>
+      <div>
+        <p class="story-p">That morning I was sitting in my car, looking at what I had built, and felt nothing I fully recognized as mine.</p>
+        <div class="story-pull">
+          <p>That experience, and everything that came after, is what The New Game of Life is built from. Not a system I learned. A path I walked.</p>
+        </div>
+        <button class="toggle-btn" onclick="tog('story-l2',this)"><span>More</span><span class="arr">›</span></button>
+        <div class="l2" id="story-l2">
+          <div class="l2-body">
+            <p class="l2-p">I had built a services business that worked. Revenue that grew. And this quiet, completely irrational feeling that the whole thing was running me rather than the other way around.</p>
+            <p class="l2-p">I didn't tell anyone that at the time. You don't, as an entrepreneur. You perform certainty you don't quite feel. You get very good at that performance. Most of us do.</p>
+            <p class="l2-p" style="color:var(--gold);opacity:.8;font-style:italic">The real conversation, the one that actually matters, almost never happens.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="t-band" style="border-top:none"><p>The conversation starts with three questions.</p></div>
+
+<!-- S7 · THE INVITATION -->
+<div class="s s-a">
+  <div class="s-inner">
+    <span class="s-tag">— A quiet invitation</span>
+    <h2 class="s-title">Something in you has always known<br>there was a <em>deeper layer.</em></h2>
+    <p class="s-subtitle">The conversation starts with three questions.</p>
+    <div class="s-rule"></div>
+    <p class="s-short">The New Game of Life is built for entrepreneurs who sense the gap, and are curious enough to look at what creates it. Three questions. Two minutes. And an article on what changed everything.</p>
+    <span class="invite-em">Three questions. Two minutes.<br>And an article on what I discovered that changed everything.</span>
+    <button class="btn btn-gold" onclick="goToQuestionnaire('invitation')" style="margin-top:8px">→ I answer the three questions</button>
+    <button class="toggle-btn" style="margin-left:20px" onclick="tog('invite-l2',this)"><span>More</span><span class="arr">›</span></button>
+    <div class="l2" id="invite-l2">
+      <div class="l2-body">
+        <p class="l2-p">Your answers help calibrate a proposition of a new kind, built for entrepreneurs who sense there is another level possible. At the end, you receive an article on what I discovered and how it changed everything. Not a success story. An honest conversation about what actually shifted and how.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer style="background:#070E1A;border-top:1px solid var(--gold-dim)">
+  <div style="max-width:860px;margin:0 auto;padding:clamp(40px,6vw,64px) var(--pad-x)">
+    <div style="margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid var(--gold-dim)">
+      <p style="font-family:'Cormorant Garamond',serif;font-size:clamp(18px,3vw,24px);font-weight:700;color:var(--white);letter-spacing:3px;margin-bottom:4px">THE NEW GAME OF LIFE</p>
+      <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+        <p style="font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;color:var(--cream);opacity:.4">A path for entrepreneurs</p>
+        <p style="font-size:11px;color:var(--gold);opacity:.55">TheNewGOL.com</p>
+        <p style="font-size:11px;color:var(--cream);opacity:.3;font-style:italic">Christophe Jouret</p>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px">
+      <div>
+        <p style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);opacity:.5;margin-bottom:16px;font-weight:600">Navigate</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 16px">
+          <a href="#problem" style="font-size:11px;color:var(--cream);opacity:.35;text-decoration:none;padding:4px 0">The Problem</a>
+          <a href="#mirror"  style="font-size:11px;color:var(--cream);opacity:.35;text-decoration:none;padding:4px 0">The Mirror</a>
+          <a href="#believe" style="font-size:11px;color:var(--cream);opacity:.35;text-decoration:none;padding:4px 0">The Believe</a>
+          <a href="#method"  style="font-size:11px;color:var(--cream);opacity:.35;text-decoration:none;padding:4px 0">The Method</a>
+          <a href="#proposition" style="font-size:11px;color:var(--cream);opacity:.35;text-decoration:none;padding:4px 0">The Proposition</a>
+          <a href="#story"   style="font-size:11px;color:var(--cream);opacity:.35;text-decoration:none;padding:4px 0">The Story</a>
+        </div>
+      </div>
+      <div>
+        <p style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);opacity:.5;margin-bottom:12px;font-weight:600">The Promise</p>
+        <p style="font-family:'Cormorant Garamond',serif;font-size:clamp(17px,3vw,21px);font-weight:600;color:var(--gold);margin-bottom:8px">Living your best life.</p>
+        <p style="font-size:11px;color:var(--cream);opacity:.28;font-style:italic;line-height:1.7">A path for entrepreneurs ready to open the box.</p>
+      </div>
+    </div>
+  </div>
+  <div style="border-top:1px solid rgba(200,151,58,.07);padding:14px var(--pad-x);text-align:center;font-size:9px;color:var(--cream);opacity:.18;letter-spacing:1px">© 2026 The New Game of Life · Christophe Jouret · TheNewGOL.com</div>
+</footer>
+
+<!-- OVERLAYS -->
+
+<div class="overlay-mask" id="ov-cta">
+  <div class="overlay-box">
+    <button class="ov-close" onclick="closeOv('ov-cta')">✕</button>
+    <span class="ov-tag">— Begin</span>
+    <h2 class="ov-title">Three questions.<br>Two minutes.</h2>
+    <div class="ov-rule"></div>
+    <p class="ov-p">Your answers help calibrate a proposition of a new kind, built for entrepreneurs who sense there is another level possible.</p>
+    <p class="ov-p">At the end, you receive an article on what I discovered and how it changed everything. Not a success story. An honest conversation about what actually shifted and how.</p>
+    <a class="btn btn-gold" id="js-cta-overlay"
+       href="/questionnaire"
+       style="display:block;width:100%;margin-top:8px;text-align:center;text-decoration:none"
+       onclick="ph('cta_clicked',{source:'overlay'})">
+      → I answer the three questions
+    </a>
+  </div>
+</div>
+
+<div class="overlay-mask" id="ov-story">
+  <div class="overlay-box">
+    <button class="ov-close" onclick="closeOv('ov-story')">✕</button>
+    <span class="ov-tag">— The Story · Christophe Jouret</span>
+    <h2 class="ov-title">I sold my company<br>on a Thursday.</h2>
+    <div class="ov-rule"></div>
+    <p class="ov-p">Not because the numbers were bad. They weren't. Not because I was burned out, though I was. I sold it because one morning I was sitting in my car, looking at what I had built, and felt nothing I fully recognized as mine.</p>
+    <p class="ov-p">We had a services business that worked. Revenue that grew. And this quiet, completely irrational feeling that the whole thing was running me rather than the other way around.</p>
+    <p class="ov-p">I didn't tell anyone that at the time. You don't, as an entrepreneur. You perform certainty you don't quite feel. You get very good at that performance. Most of us do.</p>
+    <p class="ov-p" style="color:var(--gold);opacity:.9;font-style:italic">The real conversation, the one that actually matters, almost never happens.</p>
+    <p class="ov-p">That experience, and everything that came after, is what The New Game of Life is built from. Not a system I learned. A path I walked.</p>
+    <button class="btn btn-gold" style="width:100%;margin-top:8px;text-align:center" onclick="closeOv('ov-story');openOv('ov-cta')">→ Begin the conversation</button>
+  </div>
+</div>
+
+<div class="overlay-mask" id="ov-s1">
+  <div class="overlay-box">
+    <button class="ov-close" onclick="closeOv('ov-s1')">✕</button>
+    <span class="ov-tag">— Step 1 · The Method</span>
+    <h2 class="ov-title">Open Your Eyes</h2>
+    <div class="ov-rule"></div>
+    <p class="ov-p">The first movement is about seeing. Not analyzing, not solving, just seeing what is actually there, in your patterns, in your reactions, in the space between what you intend and what actually happens.</p>
+    <p class="ov-p">Most of what shapes us operates below awareness. It is not hidden by design. It simply was never pointed to. This movement creates the conditions for honest, direct seeing, without judgment and without performance.</p>
+    <p class="ov-p">When you see clearly, everything else becomes possible. The shift in what you observe begins the moment you change the quality of your attention.</p>
+    <button class="btn btn-gold" style="width:100%" onclick="closeOv('ov-s1');openOv('ov-p1')">See Step 1 details →</button>
+  </div>
+</div>
+
+<div class="overlay-mask" id="ov-s2">
+  <div class="overlay-box">
+    <button class="ov-close" onclick="closeOv('ov-s2')">✕</button>
+    <span class="ov-tag">— Step 2 · The Method</span>
+    <h2 class="ov-title">Orient Your Gaze</h2>
+    <div class="ov-rule"></div>
+    <p class="ov-p">The second movement is about understanding. Once you see what is there, the next question is where it comes from. Not to assign blame or build a narrative, but to genuinely understand the origin of the patterns that have been shaping your decisions.</p>
+    <p class="ov-p">This is where the real shift happens. Not in what you do, but in the place you do it from. When you understand the source, you can choose the direction. You stop reacting and start orienting.</p>
+    <p class="ov-p">Orienting your gaze means choosing, consciously, where to look next, in your business, in your relationships, in yourself. A different origin produces a different result.</p>
+    <button class="btn btn-gold" style="width:100%" onclick="closeOv('ov-s2');openOv('ov-p2')">See Step 2 details →</button>
+  </div>
+</div>
+
+<div class="overlay-mask" id="ov-s3">
+  <div class="overlay-box">
+    <button class="ov-close" onclick="closeOv('ov-s3')">✕</button>
+    <span class="ov-tag">— Step 3 · The Method</span>
+    <h2 class="ov-title">Live From There</h2>
+    <div class="ov-rule"></div>
+    <p class="ov-p">The third movement is about inhabiting. Not just understanding who you are, but building, deciding, and leading from that place. The work becomes a practice, woven into the daily reality of your company and your life.</p>
+    <p class="ov-p">This is not a destination. It is a quality of presence — the capacity to act from what is true rather than from what is expected, conditioned, or performed. The character steps aside. What remains is more capable, not less.</p>
+    <p class="ov-p">Living from there means that coherence is no longer something you work toward. It becomes the ground you operate from. Everything built from that place carries a different quality.</p>
+    <button class="btn btn-gold" style="width:100%" onclick="closeOv('ov-s3');openOv('ov-p3')">See Step 3 details →</button>
+  </div>
+</div>
+
+<div class="overlay-mask" id="ov-p1">
+  <div class="overlay-box">
+    <button class="ov-close" onclick="closeOv('ov-p1')">✕</button>
+    <span class="ov-tag">— Step 1 · The Proposition</span>
+    <h2 class="ov-title">Open Your Eyes · <span style="color:var(--gold)">444 €</span></h2>
+    <div class="ov-rule"></div>
+    <p class="ov-p">Five days to see what you have not been seeing. An intense, contained experience designed to shift the quality of your attention through honest reflection and guided practice.</p>
+    <ul class="ov-list">
+      <li>Day 1 · Intro session · 1h</li>
+      <li>Day 2 · Avoidance → Managing</li>
+      <li>Day 3 · Control → Letting go</li>
+      <li>Day 4 · Reflex → Openness</li>
+      <li>Day 5 · Closing session · 2h30</li>
+    </ul>
+    <button class="btn btn-gold" style="width:100%" onclick="closeOv('ov-p1');goToQuestionnaire('pkg-step1')">→ Start here</button>
+  </div>
+</div>
+
+<div class="overlay-mask" id="ov-p2">
+  <div class="overlay-box">
+    <button class="ov-close" onclick="closeOv('ov-p2')">✕</button>
+    <span class="ov-tag">— Step 2 · Most chosen</span>
+    <h2 class="ov-title">Orient Your Gaze · <span style="color:var(--gold)">2,222 €</span></h2>
+    <div class="ov-rule"></div>
+    <p class="ov-p">A month of structured deepening. You understand where your patterns come from and begin to choose differently, with support, a group, and space for the personal work that makes it real.</p>
+    <ul class="ov-list">
+      <li>Everything in Step 1</li>
+      <li>Opening session · The New Game of Life framework</li>
+      <li>4 weekly modules on projections · with live sessions, videos, and practice</li>
+      <li>Closing circle · 3h group coaching</li>
+      <li>90 min personal coaching included</li>
+      <li>Max 15 participants</li>
+    </ul>
+    <button class="btn btn-gold" style="width:100%" onclick="closeOv('ov-p2');goToQuestionnaire('pkg-step2')">→ Go deeper</button>
+  </div>
+</div>
+
+<div class="overlay-mask" id="ov-p3">
+  <div class="overlay-box">
+    <button class="ov-close" onclick="closeOv('ov-p3')">✕</button>
+    <span class="ov-tag">— Step 3 · The Proposition</span>
+    <h2 class="ov-title">Live From There · <span style="color:var(--gold)">6,666 €</span></h2>
+    <div class="ov-rule"></div>
+    <p class="ov-p">Three months of transformation from the inside out. Where the work becomes a practice woven into the daily reality of building your company and your life.</p>
+    <ul class="ov-list">
+      <li>Everything in Step 1 and Step 2</li>
+      <li>Month 1 · Understanding and mapping the game</li>
+      <li>Month 2 · My challenges · Gene Keys introduction</li>
+      <li>Month 3 · Safe container · Ikigai · Daily alignment</li>
+      <li>3 group sessions · 2 individual coaching sessions · 2h each</li>
+      <li>WhatsApp Alumni · weekly content · 3 months</li>
+      <li>Max 7 participants</li>
+    </ul>
+    <button class="btn btn-gold" style="width:100%" onclick="closeOv('ov-p3');goToQuestionnaire('pkg-step3')">→ Full commitment</button>
+  </div>
+</div>
+
+<div class="overlay-mask" id="ov-p4">
+  <div class="overlay-box">
+    <button class="ov-close" onclick="closeOv('ov-p4')">✕</button>
+    <span class="ov-tag">— Step 4 · Beyond the Game</span>
+    <h2 class="ov-title">Beyond the Game</h2>
+    <div class="ov-rule"></div>
+    <p class="ov-p" style="color:var(--gold);opacity:.9;font-style:italic">Reconnect with your infinite multidimensional nature.</p>
+    <p class="ov-p">The mystery school without mystery. For those who feel the path extends further, into the deeper layers of who they are, beyond conditioning, beyond character, beyond the game itself.</p>
+    <p class="ov-p">A fully customized journey, defined by the seeker's rhythm and resonance. No fixed format. No predetermined content. The path reveals itself as it is walked.</p>
+    <p class="ov-p" style="opacity:.35;font-style:italic;font-size:12px">This level is not applied for. It is arrived at, by resonance.</p>
+    <button class="btn btn-ghost" style="width:100%;text-align:center;margin-top:8px" onclick="closeOv('ov-p4');goToQuestionnaire('pkg-step4')">→ Begin the conversation</button>
+  </div>
+</div>
+
+<!-- ── PostHog snippet ─────────────────────────────────────────────────────── -->
+<script>
+  !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]);t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}var c=t;if(a)for(var u=0;u<a.length;u++)c=c[a[u]];c._i||c._i.push([i,s,a]);if("undefined"!=typeof o){o=t.createElement("script"),o.type="text/javascript",o.crossOrigin="anonymous",o.async=!0;var d=s&&s.api_host||"https://eu.i.posthog.com";o.src=d.replace(".i.posthog.com","cdn.i.posthog.com")+"/static/array.js";p=t.getElementsByTagName("script")[0],p.parentNode.insertBefore(o,p)}for(var r=["capture","identify","alias","on","once","off","reset","onFeatureFlags","reloadFeatureFlags","addGroup","setPersonPropertiesForFlags","resetPersonPropertiesForFlags","setGroupPropertiesForFlags","resetGroupPropertiesForFlags"],f=0;f<r.length;f++)g(e,r[f]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+</script>
+
+<script>
+  // ── UTM capture & passthrough ────────────────────────────────────────────────
+  const lsGet = k   => { try { return localStorage.getItem(k) }  catch { return null } }
+  const lsSet = (k,v) => { try { localStorage.setItem(k,v) }     catch {} }
+  const urlP        = new URLSearchParams(window.location.search)
+  const utm_source  = urlP.get('utm_source')  || lsGet('utm_source')  || ''
+  const utm_content = urlP.get('utm_content') || lsGet('utm_content') || ''
+  if (utm_source)  lsSet('utm_source',  utm_source)
+  if (utm_content) lsSet('utm_content', utm_content)
+
+  // Build questionnaire URL with current UTMs
+  function questionnaireUrl(ctaId) {
+    const p = new URLSearchParams()
+    if (utm_source)  p.set('utm_source',  utm_source)
+    if (utm_content) p.set('utm_content', utm_content)
+    if (ctaId)       p.set('utm_cta',     ctaId)
+    const qs = p.toString()
+    return '/questionnaire' + (qs ? '?' + qs : '')
+  }
+
+  function goToQuestionnaire(ctaId) {
+    ph('cta_clicked', { source: ctaId, utm_source, utm_content })
+    window.location.href = questionnaireUrl(ctaId)
+  }
+
+  // Update overlay CTA href on load
+  const $ctaOverlay = document.getElementById('js-cta-overlay')
+  if ($ctaOverlay) $ctaOverlay.href = questionnaireUrl('overlay')
+
+  // ── PostHog init ─────────────────────────────────────────────────────────────
+  function ph(event, props) {
+    try { window.posthog && posthog.capture(event, props || {}) } catch {}
+  }
+
+  fetch('/api/config')
+    .then(r => r.json())
+    .then(cfg => {
+      if (!cfg.posthogKey) return
+      posthog.init(cfg.posthogKey, {
+        api_host:          cfg.posthogHost,
+        capture_pageview:  true,
+        capture_pageleave: true,
+        session_recording: { maskAllInputs: false },
+        persistence:       'localStorage',
+        loaded: () => ph('page_viewed', { page: 'landing', utm_source, utm_content }),
+      })
+    })
+    .catch(() => {})
+
+  // ── Nav show on scroll ───────────────────────────────────────────────────────
+  const nav    = document.getElementById('main-nav')
+  const heroEl = document.getElementById('hero-section')
+  new IntersectionObserver(entries => {
+    nav.classList.toggle('visible', !entries[0].isIntersecting)
+  }, { threshold: 0 }).observe(heroEl)
+
+  // ── Scroll to next section ───────────────────────────────────────────────────
+  function scrollToNext() {
+    document.getElementById('problem').scrollIntoView({ behavior: 'smooth' })
+  }
+
+  // ── Hamburger ────────────────────────────────────────────────────────────────
+  function openMenu() {
+    document.getElementById('nav-menu').classList.add('open')
+    document.getElementById('nav-overlay').classList.add('active')
+    document.body.style.overflow = 'hidden'
+  }
+  function closeMenu() {
+    document.getElementById('nav-menu').classList.remove('open')
+    document.getElementById('nav-overlay').classList.remove('active')
+    document.body.style.overflow = ''
+  }
+
+  // ── Overlays ─────────────────────────────────────────────────────────────────
+  function openOv(id) {
+    document.getElementById(id).classList.add('active')
+    document.body.style.overflow = 'hidden'
+    ph('overlay_opened', { overlay: id })
+  }
+  function closeOv(id) {
+    document.getElementById(id).classList.remove('active')
+    document.body.style.overflow = ''
+  }
+
+  // ── Accordions ───────────────────────────────────────────────────────────────
+  function tog(id, btn) {
+    const el     = document.getElementById(id)
+    const isOpen = el.classList.toggle('open')
+    btn.classList.toggle('open', isOpen)
+    btn.querySelector('span:first-child').textContent = isOpen ? 'Less' : 'More'
+  }
+
+  // ── Close on backdrop click / ESC ────────────────────────────────────────────
+  document.querySelectorAll('.overlay-mask').forEach(m => {
+    m.addEventListener('click', e => { if (e.target === m) closeOv(m.id) })
+  })
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.overlay-mask.active').forEach(m => closeOv(m.id))
+      closeMenu()
+    }
+  })
+</script>
+</body>
+</html>
