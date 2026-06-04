@@ -1,0 +1,9 @@
+{
+  "name": "thenewgol-landing",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TheNewGOL.com — Landing page",
+  "scripts": {
+    "check": "node ../check-tokens.js"
+  }
+}

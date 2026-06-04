@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Questionnaire — The New Game of Life</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --s1:       #0D1B2E;
+      --s2:       #0F2035;
+      --s3:       #0B1928;
+      --gold:     #C8973A;
+      --gold-lt:  #E8B84B;
+      --gold-dim: rgba(200,151,58,0.15);
+      --gold-bg:  rgba(200,151,58,0.05);
+      --cream:    #F7F3EE;
+      --white:    #FFFFFF;
+      --foot:     #070E1A;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--s1);
+      color: var(--cream);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ── Header ─────────────────────────────────────────────────────────────── */
+    .header {
+      background: var(--foot);
+      border-bottom: 1px solid var(--gold-dim);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header-brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+    .header-step {
+      font-size: 10px;
+      color: rgba(247,243,238,0.3);
+      letter-spacing: 1px;
+      font-style: italic;
+    }
+
+    /* ── Progress ───────────────────────────────────────────────────────────── */
+    .progress-track { height: 2px; background: rgba(200,151,58,0.12); }
+    .progress-fill {
+      height: 100%;
+      background: var(--gold);
+      transition: width 0.4s ease;
+      width: 0%;
+    }
+
+    /* ── Layout ─────────────────────────────────────────────────────────────── */
+    .main {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* ── Typography helpers ──────────────────────────────────────────────────── */
+    .s-tag {
+      font-size: 9px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 600;
+      opacity: 0.75;
+      display: block;
+      margin-bottom: 16px;
+    }
+    .s-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(28px, 6vw, 42px);
+      font-weight: 700;
+      color: var(--white);
+      line-height: 1.05;
+      margin-bottom: 10px;
+    }
+    .s-rule {
+      width: 40px;
+      height: 2px;
+      background: var(--gold);
+      margin: 18px 0;
+    }
+    .s-body {
+      font-size: clamp(13px, 2vw, 14px);
+      line-height: 1.9;
+      color: rgba(247,243,238,0.65);
+      max-width: 480px;
+    }
+
+    /* ── SCREEN 0 · INTRO ───────────────────────────────────────────────────── */
+    #screen-intro { padding-top: 72px; text-align: center; }
+    #screen-intro .s-rule { margin: 18px auto; }
+    #screen-intro .s-body { margin: 0 auto; text-align: left; }
+    #screen-intro .s-body + .s-body { margin-top: 14px; }
+    .intro-meta {
+      font-size: 11px;
+      color: rgba(247,243,238,0.28);
+      font-style: italic;
+      margin-top: 20px;
+    }
+
+    /* ── SCREEN 1 · IDENTITY ────────────────────────────────────────────────── */
+    #screen-identity { padding-top: 52px; }
+
+    .form-group { margin-bottom: 18px; }
+    .form-label {
+      display: block;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 10px;
+      opacity: 0.85;
+    }
+    .form-input {
+      width: 100%;
+      padding: 14px 16px;
+      background: var(--s3);
+      border: 1px solid rgba(200,151,58,0.25);
+      color: var(--cream);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .form-input:focus { border-color: var(--gold); }
+    .form-input::placeholder { color: rgba(247,243,238,0.28); }
+    .form-error {
+      font-size: 11px;
+      color: #FF7070;
+      margin-top: 6px;
+      min-height: 16px;
+    }
+    .privacy-note {
+      font-size: 11px;
+      color: rgba(247,243,238,0.25);
+      font-style: italic;
+      margin-top: 6px;
+    }
+
+    /* ── SCREEN 2 · QUESTIONS Q1-Q4 ─────────────────────────────────────────── */
+    #screen-questions { padding-top: 32px; }
+
+    .q-step-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+    .q-num {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gold);
+      opacity: 0.75;
+    }
+    .q-count {
+      font-size: 10px;
+      color: rgba(247,243,238,0.3);
+      font-style: italic;
+    }
+    .q-card {
+      background: var(--s2);
+      border-top: 2px solid var(--gold);
+      padding: 28px 24px 22px;
+    }
+    .q-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(18px, 3.5vw, 22px);
+      font-weight: 400;
+      color: var(--white);
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+
+    /* ── Radio options ──────────────────────────────────────────────────────── */
+    .options { display: flex; flex-direction: column; gap: 5px; }
+
+    .option {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 13px 16px;
+      background: rgba(13,27,46,0.45);
+      border: 1px solid rgba(200,151,58,0.18);
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      user-select: none;
+    }
+    .option:hover {
+      border-color: rgba(200,151,58,0.5);
+      background: var(--gold-bg);
+    }
+    .option.selected {
+      border-color: var(--gold);
+      background: var(--gold-dim);
+    }
+
+    .option-mark {
+      width: 16px;
+      height: 16px;
+      border: 1px solid rgba(200,151,58,0.4);
+      flex-shrink: 0;
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .option.selected .option-mark {
+      border-color: var(--gold);
+      background: var(--gold);
+    }
+    .option-mark::after {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: var(--s1);
+      display: none;
+    }
+    .option.selected .option-mark::after { display: block; }
+
+    .option-text {
+      font-size: 13px;
+      line-height: 1.65;
+      color: rgba(247,243,238,0.6);
+      transition: color 0.15s;
+    }
+    .option:hover .option-text    { color: rgba(247,243,238,0.85); }
+    .option.selected .option-text { color: var(--cream); }
+
+    /* ── SCREEN 3 · Q5 ──────────────────────────────────────────────────────── */
+    #screen-q5 { padding-top: 32px; }
+    .optional-badge {
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold);
+      opacity: 0.55;
+      font-style: italic;
+    }
+    textarea.form-input {
+      resize: vertical;
+      min-height: 130px;
+      line-height: 1.75;
+    }
+    .q5-note {
+      font-size: 11px;
+      color: rgba(247,243,238,0.3);
+      font-style: italic;
+      margin-top: 8px;
+    }
+
+    /* ── Buttons ────────────────────────────────────────────────────────────── */
+    .btn {
+      display: inline-block;
+      padding: 15px 32px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s, transform 0.2s;
+      text-decoration: none;
+      text-align: center;
+    }
+    .btn-gold { background: var(--gold); color: #0D1B2E; }
+    .btn-gold:hover:not(:disabled) {
+      background: var(--gold-lt);
+      transform: translateY(-1px);
+    }
+    .btn-gold:disabled {
+      background: rgba(200,151,58,0.22);
+      color: rgba(247,243,238,0.28);
+      cursor: default;
+      transform: none;
+    }
+    .btn-ghost {
+      background: none;
+      color: rgba(247,243,238,0.38);
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      padding: 12px 0;
+      border: none;
+      cursor: pointer;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+      transition: color 0.15s;
+    }
+    .btn-ghost:hover { color: var(--gold); }
+
+    .btn-full   { display: block; width: 100%; margin-top: 18px; }
+    .btn-row    { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; }
+
+    /* ── Footer ─────────────────────────────────────────────────────────────── */
+    .footer {
+      background: var(--foot);
+      border-top: 1px solid var(--gold-dim);
+      padding: 18px 24px;
+      text-align: center;
+      margin-top: 60px;
+    }
+    .footer-text {
+      font-size: 9px;
+      color: rgba(247,243,238,0.18);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 400px) {
+      .option-text { font-size: 12px; }
+      .main { padding: 0 16px 64px; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <span class="header-brand">The New Game of Life</span>
+  <span class="header-step" id="js-step-label">5 questions · 3 min</span>
+</header>
+<div class="progress-track">
+  <div class="progress-fill" id="js-progress"></div>
+</div>
+
+<main class="main">
+
+  <!-- ── SCREEN 0 · INTRO ──────────────────────────────────────────────────── -->
+  <section id="screen-intro" class="screen active">
+    <span class="s-tag">— Questionnaire</span>
+    <h1 class="s-title">Cinq questions.<br>Deux minutes.</h1>
+    <div class="s-rule"></div>
+    <p class="s-body">
+      Ce questionnaire ne teste pas tes compétences. Il ne mesure pas ta performance.
+      Il cartographie quelque chose de plus subtil — et de beaucoup plus déterminant pour tes résultats.
+    </p>
+    <p class="s-body" style="margin-top:14px">
+      Il n'y a pas de bonnes ou de mauvaises réponses. Juste ce qui est vrai pour toi, maintenant.
+    </p>
+    <p class="s-body" style="margin-top:14px">
+      À la fin, je te partagerai un article sur ce que j'ai découvert après avoir vendu ma société
+      — et qui a tout changé dans ma façon de comprendre le succès.
+    </p>
+    <p class="intro-meta">5 questions · 3 minutes</p>
+    <button class="btn btn-gold btn-full" id="js-btn-intro">→ Je commence</button>
+  </section>
+
+  <!-- ── SCREEN 1 · IDENTITY ──────────────────────────────────────────────── -->
+  <section id="screen-identity" class="screen">
+    <div style="padding-top:52px">
+      <span class="s-tag">— Pour commencer</span>
+      <h2 class="s-title" style="font-size:clamp(22px,4.5vw,30px)">Qui es-tu ?</h2>
+      <div class="s-rule"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="input-prenom">Prénom</label>
+      <input type="text" id="input-prenom" class="form-input"
+        placeholder="Ton prénom" autocomplete="given-name" required>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="input-email">Email</label>
+      <input type="email" id="input-email" class="form-input"
+        placeholder="ton@email.com" autocomplete="email" required>
+    </div>
+    <p id="js-identity-error" class="form-error"></p>
+    <p class="privacy-note">Aucun spam. Tes informations sont confidentielles.</p>
+    <button class="btn btn-gold btn-full" id="js-btn-identity">→ Continuer</button>
+  </section>
+
+  <!-- ── SCREEN 2 · Q1–Q4 ──────────────────────────────────────────────────── -->
+  <section id="screen-questions" class="screen">
+    <div style="padding-top:32px">
+      <div class="q-step-info">
+        <span class="q-num" id="js-q-num">Question 01</span>
+        <span class="q-count" id="js-q-count">1 sur 4</span>
+      </div>
+      <div class="q-card">
+        <p class="q-text" id="js-q-text"></p>
+        <div class="options" id="js-options"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" id="js-btn-back" type="button">← Retour</button>
+        <button class="btn btn-gold"  id="js-btn-next" type="button" disabled>Suivant →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SCREEN 3 · Q5 (optionnel) ────────────────────────────────────────── -->
+  <section id="screen-q5" class="screen">
+    <div style="padding-top:32px">
+      <div class="q-step-info">
+        <span class="q-num">Question 05</span>
+        <span class="optional-badge">Optionnel</span>
+      </div>
+      <div class="q-card">
+        <p class="q-text">
+          Y a-t-il quelque chose dans ton business que tu regardes depuis longtemps
+          sans vraiment voir ce qui le crée&nbsp;?
+        </p>
+        <textarea id="input-q5" class="form-input"
+          placeholder="Partage ce que tu veux — ou laisse vide et clique directement sur Recevoir l'article."></textarea>
+        <p class="q5-note">Champ libre · facultatif</p>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" id="js-btn-back-q5" type="button">← Retour</button>
+        <button class="btn btn-gold"  id="js-btn-submit"  type="button">→ Recevoir l'article</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <p class="footer-text">TheNewGOL.com · Christophe Jouret · 2026</p>
+</footer>
+
+<!-- ── PostHog snippet ────────────────────────────────────────────────────── -->
+<script>
+  !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]);t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}var c=t;if(a)for(var u=0;u<a.length;u++)c=c[a[u]];c._i||c._i.push([i,s,a]);if("undefined"!=typeof o){o=t.createElement("script"),o.type="text/javascript",o.crossOrigin="anonymous",o.async=!0;var d=s&&s.api_host||"https://eu.i.posthog.com";o.src=d.replace(".i.posthog.com","cdn.i.posthog.com")+"/static/array.js";p=t.getElementsByTagName("script")[0],p.parentNode.insertBefore(o,p)}for(var r=["capture","identify","alias","on","once","off","reset","onFeatureFlags","reloadFeatureFlags","addGroup","setPersonPropertiesForFlags","resetPersonPropertiesForFlags","setGroupPropertiesForFlags","resetGroupPropertiesForFlags"],f=0;f<r.length;f++)g(e,r[f]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+</script>
+
+<script>
+  // ── UTM ─────────────────────────────────────────────────────────────────────
+  const lsGet = k  => { try { return localStorage.getItem(k) }  catch { return null } }
+  const lsSet = (k,v) => { try { localStorage.setItem(k,v) }    catch {} }
+  const urlP        = new URLSearchParams(window.location.search)
+  const utm_source  = urlP.get('utm_source')  || lsGet('utm_source')  || ''
+  const utm_content = urlP.get('utm_content') || lsGet('utm_content') || ''
+  if (utm_source)  lsSet('utm_source',  utm_source)
+  if (utm_content) lsSet('utm_content', utm_content)
+
+  // ── Questions (contenu spec) ─────────────────────────────────────────────────
+  const QUESTIONS = [
+    {
+      id:      'q1',
+      text:    "Dans ton business en ce moment, qu'est-ce qui résiste le plus malgré tes efforts ?",
+      options: [
+        "Mes résultats plafonnent alors que j'investis de plus en plus",
+        "Je manque de clarté sur mon offre ou mon positionnement",
+        "Je cours après le temps — trop tactique, pas assez stratégique",
+        "Je reproduis les mêmes patterns sans comprendre pourquoi",
+        "Je sense un décalage entre mon potentiel et ce que je manifeste",
+      ],
+    },
+    {
+      id:      'q2',
+      text:    "Quand quelque chose ne fonctionne pas comme prévu, vers quoi te tournes-tu en premier ?",
+      options: [
+        "Une meilleure stratégie ou un meilleur outil",
+        "Ce que font les autres entrepreneurs qui réussissent",
+        "Plus de travail, plus de discipline, plus d'effort",
+        "Mon équipe, mes partenaires, mon marché",
+        "Je m'arrête pour comprendre ce qui se passe vraiment",
+      ],
+    },
+    {
+      id:      'q3',
+      text:    "Est-ce qu'il t'arrive de prendre des décisions que tu sais ne pas être les meilleures — mais que tu prends quand même ?",
+      options: [
+        "Oui, souvent — et je ne comprends pas toujours ce qui me pousse là",
+        "Parfois — surtout sous pression ou dans l'urgence",
+        "Rarement — j'essaie d'être rationnel dans mes choix",
+        "Non — je fais confiance à mon jugement et mon expérience",
+      ],
+    },
+    {
+      id:      'q4',
+      text:    "Si tu pouvais voir ton business depuis une altitude différente, qu'est-ce que tu regarderais en premier ?",
+      options: [
+        "Les patterns qui se répètent et que je ne comprends pas encore",
+        "Ce qui me prend le plus d'énergie pour le moins de résultats",
+        "Les décisions que j'évite de prendre depuis longtemps",
+        "La distance entre ce que je veux construire et ce que je construis vraiment",
+        "Les angles morts que je sens sans encore pouvoir les nommer",
+      ],
+    },
+  ]
+
+  // ── State ────────────────────────────────────────────────────────────────────
+  let currentQ = 0
+  const answers = {}
+
+  // ── DOM refs ─────────────────────────────────────────────────────────────────
+  const $intro     = document.getElementById('screen-intro')
+  const $identity  = document.getElementById('screen-identity')
+  const $questions = document.getElementById('screen-questions')
+  const $q5        = document.getElementById('screen-q5')
+  const $progress  = document.getElementById('js-progress')
+  const $stepLabel = document.getElementById('js-step-label')
+  const SCREENS    = [$intro, $identity, $questions, $q5]
+
+  // ── Helpers ───────────────────────────────────────────────────────────────────
+  function showScreen(screen) {
+    SCREENS.forEach(s => s.classList.remove('active'))
+    screen.classList.add('active')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+  function setProgress(pct) { $progress.style.width = pct + '%' }
+  function ph(event, props) {
+    try { window.posthog && posthog.capture(event, props) } catch {}
+  }
+
+  // ── PostHog init ──────────────────────────────────────────────────────────────
+  fetch('/api/config')
+    .then(r => r.json())
+    .then(cfg => {
+      if (!cfg.posthogKey) return
+      posthog.init(cfg.posthogKey, {
+        api_host: cfg.posthogHost,
+        capture_pageview: true,
+        capture_pageleave: true,
+        persistence: 'localStorage',
+        loaded: () => ph('page_viewed', { page: 'questionnaire', utm_source, utm_content }),
+      })
+    })
+    .catch(() => {})
+
+  // ── Screen 0 → 1 · Intro ─────────────────────────────────────────────────────
+  document.getElementById('js-btn-intro').addEventListener('click', () => {
+    showScreen($identity)
+    setProgress(12)
+    $stepLabel.textContent = 'Étape 1 sur 6'
+    ph('funnel_started', { utm_source, utm_content })
+  })
+
+  // ── Screen 1 → 2 · Identity ──────────────────────────────────────────────────
+  document.getElementById('js-btn-identity').addEventListener('click', () => {
+    const prenom = document.getElementById('input-prenom').value.trim()
+    const email  = document.getElementById('input-email').value.trim()
+    const errEl  = document.getElementById('js-identity-error')
+    errEl.textContent = ''
+    if (!prenom) { errEl.textContent = 'Le prénom est requis.'; return }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      errEl.textContent = 'Adresse email invalide.'; return
+    }
+    lsSet('prenom', prenom)
+    currentQ = 0
+    renderQuestion(0)
+    showScreen($questions)
+    setProgress(24)
+    ph('identity_submitted', { utm_source, utm_content })
+  })
+
+  // ── Render question ───────────────────────────────────────────────────────────
+  function renderQuestion(idx) {
+    const q    = QUESTIONS[idx]
+    const step = idx + 2
+
+    document.getElementById('js-q-num').textContent   = `Question 0${step}`
+    document.getElementById('js-q-count').textContent = `${idx + 1} sur ${QUESTIONS.length}`
+    document.getElementById('js-q-text').textContent  = q.text
+    $stepLabel.textContent = `Étape ${step} sur 6`
+
+    const $opts   = document.getElementById('js-options')
+    const $btnNext = document.getElementById('js-btn-next')
+    $opts.innerHTML    = ''
+    $btnNext.disabled  = !answers[q.id]
+    $btnNext.textContent = idx + 1 < QUESTIONS.length ? 'Suivant →' : 'Dernière question →'
+
+    q.options.forEach(opt => {
+      const div = document.createElement('div')
+      div.className = 'option' + (answers[q.id] === opt ? ' selected' : '')
+      div.innerHTML = `<span class="option-mark"></span><span class="option-text">${opt}</span>`
+      div.addEventListener('click', () => {
+        answers[q.id] = opt
+        $opts.querySelectorAll('.option').forEach(o => o.classList.remove('selected'))
+        div.classList.add('selected')
+        $btnNext.disabled = false
+        ph('question_answered', { question: q.id, utm_content })
+      })
+      $opts.appendChild(div)
+    })
+
+    setProgress(24 + (idx + 1) * 16)
+  }
+
+  // ── Next Q1-Q4 ────────────────────────────────────────────────────────────────
+  document.getElementById('js-btn-next').addEventListener('click', () => {
+    currentQ++
+    if (currentQ < QUESTIONS.length) {
+      renderQuestion(currentQ)
+    } else {
+      showScreen($q5)
+      setProgress(92)
+      $stepLabel.textContent = 'Question 05 sur 05'
+    }
+  })
+
+  // ── Back in Q1-Q4 ─────────────────────────────────────────────────────────────
+  document.getElementById('js-btn-back').addEventListener('click', () => {
+    if (currentQ > 0) {
+      currentQ--
+      renderQuestion(currentQ)
+    } else {
+      showScreen($identity)
+      setProgress(12)
+      $stepLabel.textContent = 'Étape 1 sur 6'
+    }
+  })
+
+  // ── Back from Q5 ──────────────────────────────────────────────────────────────
+  document.getElementById('js-btn-back-q5').addEventListener('click', () => {
+    currentQ = QUESTIONS.length - 1
+    renderQuestion(currentQ)
+    showScreen($questions)
+  })
+
+  // ── Submit ────────────────────────────────────────────────────────────────────
+  document.getElementById('js-btn-submit').addEventListener('click', async () => {
+    const $btn   = document.getElementById('js-btn-submit')
+    const prenom = document.getElementById('input-prenom').value.trim()
+    const email  = document.getElementById('input-email').value.trim()
+    const q5val  = document.getElementById('input-q5').value.trim()
+
+    $btn.disabled    = true
+    $btn.textContent = '…'
+
+    const payload = {
+      prenom, email,
+      q1: answers['q1'] || '',
+      q2: answers['q2'] || '',
+      q3: answers['q3'] || '',
+      q4: answers['q4'] || '',
+      q5: q5val,
+      utm_source,
+      utm_content,
+    }
+
+    ph('optin_submitted', { utm_source, utm_content })
+
+    try {
+      await fetch('/api/submit', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(payload),
+      })
+    } catch (_) {}
+
+    window.location.href = '/merci'
+  })
+</script>
+
+</body>
+</html>
